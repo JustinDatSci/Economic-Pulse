@@ -6,7 +6,7 @@ An interactive dashboard that provides a real-time snapshot of key U.S. economic
 
 ---
 
-![App Screenshot](PASTE_YOUR_SCREENSHOT_URL_HERE)
+![https://github.com/JustinDatSci/Economic-Pulse/blob/main/assets/EPDScreenshot.pngraw=true)
 
 ## About The Project
 
