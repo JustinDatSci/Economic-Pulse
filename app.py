@@ -7,7 +7,10 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 
-
+# This is a pre-written example of what the AI would generate.
+SAMPLE_AI_SUMMARY = """
+Based on the latest data, the economic climate shows mixed signals. While the unemployment rate remains low, indicating a strong labor market, inflation continues to be a concern, staying above the typical target. Recent GDP growth shows a modest expansion, but the elevated Federal Funds Rate suggests a continued policy focus on curbing inflation, which could temper future growth.
+"""
 
 # --- INITIAL SETUP ---
 load_dotenv()
@@ -81,8 +84,3 @@ if st.button("Generate AI Summary"):
         # Display the pre-written sample summary
         st.info(SAMPLE_AI_SUMMARY)
         st.caption("Note: This is a sample AI summary to demonstrate functionality. Live API calls are disabled.")
-
-# This is a pre-written example of what the AI would generate.
-SAMPLE_AI_SUMMARY = """
-Based on the latest data, the economic climate shows mixed signals. While the unemployment rate remains low, indicating a strong labor market, inflation continues to be a concern, staying above the typical target. Recent GDP growth shows a modest expansion, but the elevated Federal Funds Rate suggests a continued policy focus on curbing inflation, which could temper future growth.
-"""
