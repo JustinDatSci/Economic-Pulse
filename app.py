@@ -7,6 +7,8 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 
+
+
 # --- INITIAL SETUP ---
 load_dotenv()
 fred_api_key = os.getenv("FRED_API_KEY")
