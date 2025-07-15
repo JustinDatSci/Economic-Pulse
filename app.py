@@ -75,33 +75,12 @@ st.subheader("🤖 AI Economic Analyst Summary")
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
 if st.button("Generate AI Summary"):
-    if not openai_api_key:
-        st.warning("Please add your OpenAI API Key to the .env file.")
-    else:
-        with st.spinner("The AI Analyst is thinking..."):
-            try:
-                client = OpenAI(api_key=openai_api_key)
+    with st.spinner("The AI Analyst is thinking..."):
+        # Display the pre-written sample summary
+        st.info(SAMPLE_AI_SUMMARY)
+        st.caption("Note: This is a sample AI summary to demonstrate functionality. Live API calls are disabled.")
 
-                # Create the prompt with the latest data
-                prompt = f"""
-                You are a concise economic analyst. Based on the following data points, write a 3-4 sentence summary of the current US economic climate for a non-expert audience.
-
-                - Inflation (CPI Year-over-Year): {latest_cpi_growth:.2f}%
-                - Unemployment Rate: {latest_unrate:.2f}%
-                - Latest Quarterly GDP Growth: {latest_gdp_growth:.2f}%
-                - Federal Funds Rate: {fed_funds_df['Fed Funds Rate'].iloc[-1]:.2f}%
-
-                Analyze these indicators together and provide a brief, neutral outlook.
-                """
-
-                response = client.chat.completions.create(
-                    model="gpt-4o",
-                    messages=[{"role": "user", "content": prompt}]
-                )
-
-                summary = response.choices[0].message.content
-                st.info(summary)
-
-            except Exception as e:
-                st.error(f"Failed to generate AI summary. Error: {e}")
-
+# This is a pre-written example of what the AI would generate.
+SAMPLE_AI_SUMMARY = """
+Based on the latest data, the economic climate shows mixed signals. While the unemployment rate remains low, indicating a strong labor market, inflation continues to be a concern, staying above the typical target. Recent GDP growth shows a modest expansion, but the elevated Federal Funds Rate suggests a continued policy focus on curbing inflation, which could temper future growth.
+"""
