@@ -84,3 +84,6 @@ if st.button("Generate AI Summary"):
         # Display the pre-written sample summary
         st.info(SAMPLE_AI_SUMMARY)
         st.caption("Note: This is a sample AI summary to demonstrate functionality. Live API calls are disabled.")
+        
+st.markdown("---")
+st.markdown("Source Code: [GitHub](https://github.com/JustinDatSci/Economic-Pulse)")
