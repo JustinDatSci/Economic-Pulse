@@ -1,11 +1,15 @@
 # app.py
-import streamlit as st
+# Standard library imports (built into Python)
+import os
+from datetime import datetime, timedelta
+
+# Third-party library imports (installed with pip)
 import pandas as pd
 import plotly.express as px
+import streamlit as st
+from dotenv import load_dotenv
 from fredapi import Fred
 from openai import OpenAI
-from dotenv import load_dotenv
-import os
 
 # --- ANIMATION ---
 st.markdown("""
@@ -44,12 +48,13 @@ ECONOMIC_SERIES = {
 }
 
 @st.cache_data(ttl=3600, show_spinner="Fetching economic data...")
-def load_all_data(series_dict):
+def load_all_data(series_dict, start_date=None):
     """Fetches all data series defined in a dictionary."""
     data = {}
     for name, series_id in series_dict.items():
         try:
-            df = fred.get_series(series_id).to_frame(name=name)
+            #pass start_date to the API call here
+            df = fred.get_series(series_id, observation_start=start_date).to_frame(name=name)
             data[name] = df
         except Exception as e:
             st.error(f"Failed to fetch {name} ({series_id}). Error: {e}")
@@ -81,18 +86,53 @@ st.markdown("A real-time snapshot of key U.S. economic indicators.")
 # --- SIDEBAR CONTROLS ---
 st.sidebar.header("Dashboard Controls")
 
+st.sidebar.subheader("Data Selection")
+
+# Let user select indicators
 all_indicator_names = list(ECONOMIC_SERIES.keys())
 selected_indicators = st.sidebar.multiselect(
-    "Select Indicators to Display",
+    "Select Indicators",
     options=all_indicator_names,
     default=all_indicator_names[:4]
 )
 
+# Add a time period selector
+time_period = st.sidebar.selectbox(
+    "Select Time Period",
+    options=['1Y', '3Y', '5Y', '10Y', 'All Time'],
+    index=2  # Default to '5Y'
+)
+
+st.sidebar.divider()
+
+# Add a button to clear the cache
+if st.sidebar.button("Clear Cache & Refresh Data"):
+    st.cache_data.clear()
+    st.rerun()
+
+st.sidebar.divider()
+
+st.sidebar.markdown(
+    """
+    **About**
+    This dashboard provides a real-time snapshot of key U.S. economic indicators.
+    Data is sourced from the [FRED API](https://fred.stlouisfed.org/docs/api/fred/).
+    """
+)
+
 # --- DATA LOADING ---
+# Calculate start date based on sidebar selection
+if time_period == 'All Time':
+    start_date = None
+else:
+    years = int(time_period.replace('Y', ''))
+    start_date = datetime.now() - timedelta(days=years * 365)
+
 # Filter the series dict based on user selection
 series_to_load = {name: sid for name, sid in ECONOMIC_SERIES.items() if name in selected_indicators}
-# Load only the data the user selected.
-all_data = load_all_data(series_to_load)
+
+# Load only the data for the selected time period
+all_data = load_all_data(series_to_load, start_date=start_date)
 
 # --- DYNAMIC METRIC DISPLAY ---
 if not selected_indicators:
