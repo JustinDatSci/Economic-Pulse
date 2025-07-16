@@ -29,7 +29,11 @@ A real-time, interactive dashboard for visualizing key U.S. economic indicators 
 ### **🛠️ Tech Stack**
 
 **Language**: Python
+
 **Framework**: Streamlit
+
 **Libraries**: Pandas, Plotly, FredAPI, OpenAI
+
 **APIs**: Federal Reserve Economic Data (FRED), OpenAI
+
 **Deployment**: Streamlit Community Cloud
