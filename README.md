@@ -10,7 +10,7 @@ A real-time, interactive dashboard for visualizing key U.S. economic indicators 
 
 ---
 
-![https://github.com/JustinDatSci/Economic-Pulse/blob/main/assets/EPDScreenshot.png?raw=true)
+![Economic Pulse Screenshot](<img width="1440" height="900" alt="Image" src="https://github.com/user-attachments/assets/6706740d-22d3-4d41-bd2e-11380f6e9f4e" />)
 
 ---
 
