@@ -88,15 +88,21 @@ st.sidebar.header("Dashboard Controls")
 
 st.sidebar.subheader("Data Selection")
 
-# Let user select indicators
+# Create a list of all indicator names
 all_indicator_names = list(ECONOMIC_SERIES.keys())
-selected_indicators = st.sidebar.multiselect(
-    "Select Indicators",
-    options=all_indicator_names,
-    default=all_indicator_names[:4]
-)
 
-# Add a time period selector
+# Horizontal layout with one column per indicator
+cols = st.sidebar.columns(len(all_indicator_names))
+
+# Checkbox in each column and collect the selected ones
+selected_indicators = []
+for i, indicator_name in enumerate(all_indicator_names):
+    # Default to the first 4 being selected
+    is_selected = cols[i].checkbox(indicator_name, value=(i < 4))
+    if is_selected:
+        selected_indicators.append(indicator_name)
+
+# Time period selector
 time_period = st.sidebar.selectbox(
     "Select Time Period",
     options=['1Y', '3Y', '5Y', '10Y', 'All Time'],
@@ -105,7 +111,7 @@ time_period = st.sidebar.selectbox(
 
 st.sidebar.divider()
 
-# Add a button to clear the cache
+# Button to clear the cache
 if st.sidebar.button("Clear Cache & Refresh Data"):
     st.cache_data.clear()
     st.rerun()
@@ -121,17 +127,23 @@ st.sidebar.markdown(
 )
 
 # --- DATA LOADING ---
-# Calculate start date based on sidebar selection
-if time_period == 'All Time':
+end_date = datetime.now()
+
+# Special handling for YoY calculation
+# If user wants 1Y of inflation, we need 2Y of raw data to calculate it
+if time_period == '1Y' and "Inflation (CPI YoY)" in selected_indicators:
+    start_date = end_date - timedelta(days=2 * 365)
+    st.sidebar.info("Note: Fetching 2 years of data to calculate 1-year inflation change.", icon="ℹ️")
+elif time_period == 'All Time':
     start_date = None
 else:
     years = int(time_period.replace('Y', ''))
-    start_date = datetime.now() - timedelta(days=years * 365)
+    start_date = end_date - timedelta(days=years * 365)
 
 # Filter the series dict based on user selection
 series_to_load = {name: sid for name, sid in ECONOMIC_SERIES.items() if name in selected_indicators}
 
-# Load only the data for the selected time period
+# Load the data for the calculated time period
 all_data = load_all_data(series_to_load, start_date=start_date)
 
 # --- DYNAMIC METRIC DISPLAY ---
