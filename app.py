@@ -7,6 +7,21 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 
+# --- ANIMATION ---
+st.markdown("""
+<style>
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+.pulse-text {
+    animation: pulse 2s infinite;
+    display: inline-block;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # --- INITIAL SETUP ---
 load_dotenv()
 fred_api_key = st.secrets["FRED_API_KEY"]
@@ -55,8 +70,10 @@ def get_ai_summary(latest_data_string):
     return response.choices[0].message.content
 
 # --- APP LAYOUT ---
-st.set_page_config(layout="wide", page_title="Economic Pulse Dashboard")
-st.title("🇺🇸 Economic Pulse Dashboard")
+st.markdown(
+    '<h1>🇺🇸 Economic <span class="pulse-text">Pulse</span> Dashboard</h1>',
+    unsafe_allow_html=True
+)
 st.markdown("A real-time snapshot of key U.S. economic indicators.")
 
 # --- SIDEBAR CONTROLS ---
