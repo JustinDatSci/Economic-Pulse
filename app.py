@@ -84,6 +84,7 @@ st.markdown(
 st.markdown("A real-time snapshot of key U.S. economic indicators.")
 
 # --- SIDEBAR CONTROLS ---
+st.sidebar.header("Dashboard Controls")
 
 st.sidebar.subheader("Data Selection")
 
@@ -94,6 +95,31 @@ selected_indicators = st.sidebar.multiselect(
     options=all_indicator_names,
     default=all_indicator_names[:4]
 )
+
+# Add the time period selector back
+time_period = st.sidebar.selectbox(
+    "Select Time Period",
+    options=['1Y', '3Y', '5Y', '10Y', 'All Time'],
+    index=2  # Default to '5Y'
+)
+
+st.sidebar.divider()
+
+# Add a button to clear the cache
+if st.sidebar.button("Clear Cache & Refresh Data"):
+    st.cache_data.clear()
+    st.rerun()
+
+st.sidebar.divider()
+
+st.sidebar.markdown(
+    """
+    **About**
+    This dashboard provides a real-time snapshot of key U.S. economic indicators.
+    Data is sourced from the [FRED API](https://fred.stlouisfed.org/docs/api/fred/).
+    """
+)
+
 # --- DATA LOADING ---
 end_date = datetime.now()
 
