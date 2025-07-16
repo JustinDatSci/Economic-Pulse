@@ -15,8 +15,10 @@ st.markdown("""
     50% { transform: scale(1.05); }
     100% { transform: scale(1); }
 }
-.pulse-text {
-    animation: pulse 2s infinite;
+
+/* A more specific and forceful rule to prevent Streamlit from overriding it */
+h1 .pulse-text {
+    animation: pulse 2s infinite !important;
     display: inline-block;
 }
 </style>
