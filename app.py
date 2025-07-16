@@ -84,48 +84,16 @@ st.markdown(
 st.markdown("A real-time snapshot of key U.S. economic indicators.")
 
 # --- SIDEBAR CONTROLS ---
-st.sidebar.header("Dashboard Controls")
 
 st.sidebar.subheader("Data Selection")
 
-# Create a list of all indicator names
+# Let user select indicators using the standard multiselect widget
 all_indicator_names = list(ECONOMIC_SERIES.keys())
-
-# Horizontal layout with one column per indicator
-cols = st.sidebar.columns(len(all_indicator_names))
-
-# Checkbox in each column and collect the selected ones
-selected_indicators = []
-for i, indicator_name in enumerate(all_indicator_names):
-    # Default to the first 4 being selected
-    is_selected = cols[i].checkbox(indicator_name, value=(i < 4))
-    if is_selected:
-        selected_indicators.append(indicator_name)
-
-# Time period selector
-time_period = st.sidebar.selectbox(
-    "Select Time Period",
-    options=['1Y', '3Y', '5Y', '10Y', 'All Time'],
-    index=2  # Default to '5Y'
+selected_indicators = st.sidebar.multiselect(
+    "Select Indicators",
+    options=all_indicator_names,
+    default=all_indicator_names[:4]
 )
-
-st.sidebar.divider()
-
-# Button to clear the cache
-if st.sidebar.button("Clear Cache & Refresh Data"):
-    st.cache_data.clear()
-    st.rerun()
-
-st.sidebar.divider()
-
-st.sidebar.markdown(
-    """
-    **About**
-    This dashboard provides a real-time snapshot of key U.S. economic indicators.
-    Data is sourced from the [FRED API](https://fred.stlouisfed.org/docs/api/fred/).
-    """
-)
-
 # --- DATA LOADING ---
 end_date = datetime.now()
 
@@ -195,7 +163,7 @@ if selected_indicators:
             with chart_col2:
                 st.plotly_chart(create_line_chart(chart_df_to_plot, indicator_name, 'Percent'), use_container_width=True)
 
-# --- 3. DYNAMIC AI SUMMARY SECTION ---
+# --- DYNAMIC AI SUMMARY SECTION ---
 st.markdown("---")
 st.subheader("🤖 AI Economic Analyst Summary")
 if st.button("Generate Live AI Summary"):
