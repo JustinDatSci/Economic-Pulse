@@ -10,19 +10,23 @@ A real-time, interactive dashboard for visualizing key U.S. economic indicators 
 
 ---
 
+### **📸 Screenshot**
+
 ![Economic Pulse Screenshot](https://github.com/user-attachments/assets/6706740d-22d3-4d41-bd2e-11380f6e9f4e)
 
 ---
 
 ### **🚀 Features**
 
-**Interactive Charts**: Visualize multiple economic indicators with Plotly.
+**Dynamic Dashboard**: Select which economic indicators to display from the sidebar for a customized view.
 
-**Dynamic Controls**: Use the sidebar to select which indicators to display.
+**Interactive Charts**: Visualize data with responsive Plotly charts that update based on your selections.
 
-**AI-Powered Analysis**: Generate a concise summary of the current economic climate with the click of a button.
+**AI-Powered Analysis**: Generate a concise summary of the current economic climate with the click of a button using the OpenAI API.
 
-**Cached API Calls**: Efficiently caches data from the FRED API to ensure fast load times.
+**Performance Optimized**: Caches API calls for both data and AI summaries to ensure fast load times and efficient resource use.
+
+**Custom Styling**: Features a unique "pulse" animation on the title using custom CSS.
 
 ---
 
@@ -32,8 +36,34 @@ A real-time, interactive dashboard for visualizing key U.S. economic indicators 
 
 **Framework**: Streamlit
 
-**Libraries**: Pandas, Plotly, FredAPI, OpenAI
-
-**APIs**: Federal Reserve Economic Data (FRED), OpenAI
+**Key Libraries**: Pandas, Plotly, FredAPI, OpenAI
 
 **Deployment**: Streamlit Community Cloud
+
+---
+
+### **⚙️ How to Run Locally**
+
+To run this project on your own machine, follow these steps:
+
+1.  **Clone the repository:**
+    ```bash
+    git clone [https://github.com/JustinDatSci/Economic-Pulse.git](https://github.com/JustinDatSci/Economic-Pulse.git)
+    cd Economic-Pulse
+    ```
+
+2.  **Create a `.env` file** in the root directory and add your API keys:
+    ```
+    FRED_API_KEY="YOUR_FRED_API_KEY"
+    OPENAI_API_KEY="YOUR_OPENAI_API_KEY"
+    ```
+
+3.  **Install the required libraries:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4.  **Run the Streamlit app:**
+    ```bash
+    streamlit run app.py
+    ```
