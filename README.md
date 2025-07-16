@@ -17,9 +17,9 @@ A real-time, interactive dashboard for visualizing key U.S. economic indicators 
 ### **🚀 Features**
 
 **Interactive Charts**: Visualize multiple economic indicators with Plotly.
-**Dynamic Controls**: Use the sidebar to select which indicators to display.
-**AI-Powered Analysis**: Generate a concise summary of the current economic climate with the click of a button.
-**Cached API Calls**: Efficiently caches data from the FRED API to ensure fast load times.
+***Dynamic Controls**: Use the sidebar to select which indicators to display.
+***AI-Powered Analysis**: Generate a concise summary of the current economic climate with the click of a button.
+***Cached API Calls**: Efficiently caches data from the FRED API to ensure fast load times.
 
 ---
 
