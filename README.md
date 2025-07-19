@@ -4,19 +4,19 @@ A real-time, interactive dashboard for visualizing key U.S. economic indicators 
 
 ---
 
-### **✨ Live Demo**
+### **Live Demo**
 
 **[View Live App](https://economic-pulse.streamlit.app/)**
 
 ---
 
-### **📸 Screenshot**
+### **Screenshot**
 
 ![Economic Pulse Screenshot](https://github.com/user-attachments/assets/6706740d-22d3-4d41-bd2e-11380f6e9f4e)
 
 ---
 
-### **🚀 Features**
+### **Features**
 
 **Dynamic Dashboard**: Select which economic indicators to display from the sidebar for a customized view.
 
@@ -30,7 +30,7 @@ A real-time, interactive dashboard for visualizing key U.S. economic indicators 
 
 ---
 
-### **🛠️ Tech Stack**
+### **Tech Stack**
 
 **Language**: Python
 
