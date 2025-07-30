@@ -183,28 +183,25 @@ economic-pulse/
 
 ---
 
-## **Professional Impact**
+## **Project Architecture & Design**
 
-This project demonstrates **institutional-quality quantitative research** capabilities:
+### **Technical Implementation**
+Economic Pulse employs a modular architecture designed for institutional deployment. The platform integrates multiple data sources through robust APIs, processes economic indicators with statistical validation, and generates investment signals through machine learning pipelines. Error handling and data validation ensure reliable operation across different market conditions.
 
-### **Technical Excellence**
-- Production-quality code with comprehensive error handling
-- Statistical validation and significance testing throughout
-- Professional data visualization and interactive reporting
-- Systematic approach to alpha generation and risk management
+### **Analytical Framework**
+The project implements a comprehensive statistical methodology combining correlation analysis, machine learning prediction, and performance attribution. All relationships undergo significance testing with p-value validation, while cross-validation techniques ensure model robustness. The framework systematically processes 15+ economic indicators against 11 sector ETFs to identify statistically significant investment relationships.
 
-### **Investment Acumen**
-- Deep understanding of economic-market relationships
-- Risk management focus with superior risk-adjusted returns
-- Systematic framework for investment decision-making
-- Professional presentation of actionable investment insights
+### **Investment Methodology**
+Economic Pulse bridges macroeconomic theory with quantitative implementation. The signal generation process weights economic factors based on empirical research and economic reasoning, creating a composite score that drives systematic allocation decisions. Risk management is embedded throughout, prioritizing capital preservation while capturing systematic alpha opportunities.
 
-### **Business Relevance**
-- Direct application to hedge fund and asset management
-- Scalable framework for institutional investment platforms
-- Clear value proposition for systematic trading strategies
-- Demonstrable alpha generation with rigorous validation
+### **Real-World Applications**
+The platform addresses practical investment challenges faced by hedge funds and asset managers. It provides systematic sector rotation signals, economic regime detection, and risk-adjusted portfolio allocation recommendations. The backtesting framework demonstrates how economic insights translate into actionable investment strategies with measurable performance benefits.
 
+### **Validation & Robustness**
+Economic Pulse undergoes rigorous testing across multiple dimensions. Statistical relationships are validated through significance testing and multiple comparison corrections. Machine learning models use time-series cross-validation to ensure out-of-sample performance. The strategy backtesting incorporates transaction costs and realistic implementation constraints to demonstrate practical viability.
+
+### **Scalability & Extension**
+The modular design enables straightforward extension to additional data sources, alternative asset classes, and international markets. The statistical framework can accommodate new economic indicators while maintaining analytical rigor. The codebase structure supports both research experimentation and production deployment scenarios.
 ---
 
 ## **Future Enhancements**
