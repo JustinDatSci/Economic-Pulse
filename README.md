@@ -1,4 +1,4 @@
-# 📊 Economic Pulse - Quantitative Investment Research Platform
+# Economic Pulse - Quantitative Investment Research Platform
 
 *Systematic alpha generation through economic data science and machine learning*
 
@@ -6,11 +6,11 @@
 [![Jupyter](https://img.shields.io/badge/Jupyter-Lab-orange.svg)](https://jupyter.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-## 🎯 Executive Summary
+## Executive Summary
 
 **Economic Pulse** transforms economic data into systematic investment signals using advanced quantitative methods. This institutional-quality platform demonstrates professional investment research capabilities through rigorous statistical analysis and machine learning.
 
-### 🏆 **Performance Highlights**
+### **Performance Highlights**
 - **Sharpe Ratio**: 1.04 (exceptional risk-adjusted returns)
 - **Maximum Drawdown**: 6.87% (superior downside protection)
 - **Win Rate**: 57.7% (consistent systematic edge)
@@ -19,27 +19,27 @@
 
 ---
 
-## 🚀 **Platform Capabilities**
+## **Platform Capabilities**
 
-### **📈 Investment Signal Generation**
+### **Investment Signal Generation**
 - Multi-factor economic composite scoring with statistical validation
 - Real-time regime detection (Bullish/Bearish/Neutral)
 - Theory-grounded factor weighting based on economic relationships
 - Professional signal interpretation with confidence levels
 
-### **🤖 Machine Learning Pipeline**
+### **Machine Learning Pipeline**
 - Random Forest models with 50+ engineered features
 - Time series cross-validation for robust out-of-sample testing
 - Feature importance analysis identifying key economic drivers
 - Directional accuracy metrics for trading signal validation
 
-### **🔗 Sector Correlation Analysis**
+### **Sector Correlation Analysis**
 - Comprehensive analysis of 11 GICS sectors vs 15 economic indicators
 - Statistical significance testing with p-value corrections
 - Professional correlation heatmaps and sensitivity rankings
 - Investment implications for sector rotation strategies
 
-### **🔬 Strategy Backtesting**
+### **Strategy Backtesting**
 - Transaction cost-aware performance simulation
 - Risk-adjusted metrics including Sharpe and Information ratios
 - Regime-based performance attribution analysis
@@ -47,23 +47,23 @@
 
 ---
 
-## 📊 **Key Investment Insights**
+## **Key Investment Insights**
 
-### **🏭 Economic Sensitivity Rankings**
+### **Economic Sensitivity Rankings**
 1. **Technology**: 0.264 avg correlation (highest economic sensitivity)
 2. **NASDAQ/Tech**: 0.253 avg correlation 
 3. **S&P 500**: 0.244 avg correlation
 4. **Healthcare**: 0.207 avg correlation (surprisingly pro-cyclical)
 5. **Utilities**: 0.106 avg correlation (truly defensive)
 
-### **📈 Most Influential Economic Indicators**
+### **Most Influential Economic Indicators**
 1. **GDP Growth**: 0.314 avg correlation (primary market driver)
 2. **VIX/Market Fear**: 0.257 avg correlation (risk sentiment)
 3. **CPI Inflation**: 0.151 avg correlation (monetary policy impact)
 4. **Unemployment**: 0.141 avg correlation (labor market strength)
 5. **Fed Funds Rate**: 0.092 avg correlation (surprisingly weak)
 
-### **🎯 Statistically Significant Relationships**
+### **Statistically Significant Relationships**
 - **Technology ↔ VIX**: -0.510*** (tech highly sensitive to market fear)
 - **S&P 500 ↔ GDP Growth**: +0.466** (strong pro-cyclical relationship)
 - **Healthcare ↔ GDP Growth**: +0.436** (less defensive than conventional wisdom)
@@ -71,7 +71,7 @@
 
 ---
 
-## 📈 **Strategy Performance Analysis**
+## **Strategy Performance Analysis**
 
 ### **Risk-Adjusted Performance (2023-2025)**
 | Metric | Strategy | S&P 500 | Advantage |
@@ -90,7 +90,7 @@
 
 ---
 
-## 🛠️ **Technical Implementation**
+## **Technical Implementation**
 
 ### **Data Sources & Processing**
 - **Economic Data**: Federal Reserve (FRED) API - 15+ key indicators
@@ -114,7 +114,7 @@ Metrics: R², RMSE, directional accuracy, feature importance
 
 ---
 
-## 🎯 **Investment Applications**
+## **Investment Applications**
 
 ### **Portfolio Management**
 - **Dynamic Allocation**: Economic signal-based equity/cash allocation
@@ -130,7 +130,7 @@ Metrics: R², RMSE, directional accuracy, feature importance
 
 ---
 
-## 🚀 **Quick Start**
+## **Quick Start**
 
 ### **Installation**
 ```bash
@@ -153,7 +153,7 @@ jupyter lab
 
 ---
 
-## 📚 **Project Structure**
+## **Project Structure**
 
 ```
 economic-pulse/
@@ -167,7 +167,7 @@ economic-pulse/
 
 ---
 
-## 🎓 **Methodology Validation**
+## **Methodology Validation**
 
 ### **Statistical Rigor**
 - ✅ **Significance Testing**: All correlations tested (p<0.05 threshold)
@@ -183,7 +183,7 @@ economic-pulse/
 
 ---
 
-## 🏆 **Professional Impact**
+## **Professional Impact**
 
 This project demonstrates **institutional-quality quantitative research** capabilities:
 
@@ -207,7 +207,7 @@ This project demonstrates **institutional-quality quantitative research** capabi
 
 ---
 
-## 🎯 **Future Enhancements**
+## **Future Enhancements**
 
 ### **Alternative Data Integration**
 - Satellite imagery for real-time economic activity measurement
@@ -231,18 +231,9 @@ This project demonstrates **institutional-quality quantitative research** capabi
 
 ## 📧 **Contact & Applications**
 
-**Justin [Your Last Name]**
-- 📧 **Email**: [your.email@domain.com]
-- 💼 **LinkedIn**: [Your LinkedIn Profile]
+**Justin Harris**
+- **LinkedIn**: [[Your LinkedIn Profile](https://www.linkedin.com/in/justin-harris-8ba45794/)]
 - 🔗 **GitHub**: [@JustinDatSci](https://github.com/JustinDatSci)
-
-### **Open to Opportunities**
-- 🏦 **Hedge Fund Internships** (Walleye Capital target)
-- 📊 **Quantitative Research Positions**
-- 💼 **Investment Banking Roles**
-- 🎯 **Asset Management Opportunities**
-
----
 
 ## ⚖️ **Disclaimer**
 
@@ -256,6 +247,6 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-*Built with passion for quantitative finance and systematic alpha generation. Demonstrating institutional-quality investment research for hedge fund applications.*
+*Built for quantitative finance and systematic alpha generation. Institutional-quality investment research.*
 
 **⭐ Star this repository if you find it valuable for quantitative research!**
