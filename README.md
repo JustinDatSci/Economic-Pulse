@@ -10,9 +10,13 @@
 
 **Economic Pulse** transforms economic data into systematic investment signals using advanced quantitative methods. This institutional-quality platform demonstrates professional investment research capabilities through rigorous statistical analysis and machine learning.
 
+---
+
 ##**Live Dashboard**
 **[Interactive Demo →](https://economic-pulse.streamlit.app)**
 *Explore investment insights, sector correlations, and performance metrics*
+
+---
 
 ### **Performance Highlights**
 - **Sharpe Ratio**: 1.04 (exceptional risk-adjusted returns)
