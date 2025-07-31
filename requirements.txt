@@ -1,7 +1,54 @@
+# Economic Pulse V3.0 - Multi-Asset Financial Intelligence Platform
+# Enhanced requirements with optional advanced ML libraries
+
+# Core Streamlit and Data Libraries (Required)
 streamlit>=1.28.0
 pandas>=1.5.0
 numpy>=1.24.0
 plotly>=5.17.0
 requests>=2.28.0
+
+# Basic ML Libraries (Required for core functionality)
 scikit-learn>=1.3.0
 scipy>=1.10.0
+
+# Enhanced Data Sources (Optional but recommended)
+yfinance>=0.2.0
+# ccxt>=4.0.0  # Commented out - may cause issues in some environments
+
+# Advanced ML Libraries (Optional - will gracefully fallback if not available)
+# tensorflow>=2.10.0  # Commented out for Streamlit Cloud compatibility
+# keras>=2.10.0       # Included with tensorflow
+
+# Time Series Analysis
+# statsmodels>=0.14.0  # Optional for advanced time series analysis
+
+# Additional Utilities
+python-dateutil>=2.8.0
+pytz>=2023.3
+
+# Data Validation and Processing
+# pydantic>=2.0.0     # Optional for data validation
+
+# Caching and Performance
+# redis>=4.5.0        # Optional for advanced caching
+# joblib>=1.3.0       # Optional for model persistence
+
+# Development and Testing (Optional)
+# pytest>=7.4.0       # For testing
+# black>=23.0.0       # For code formatting
+# flake8>=6.0.0       # For linting
+
+# Note: Some advanced libraries are commented out to ensure compatibility
+# with Streamlit Cloud. The app will automatically detect available libraries
+# and enable features accordingly.
+
+# Fallback libraries (automatically handled by the app):
+# - If tensorflow is not available: Uses scikit-learn models only
+# - If yfinance is not available: Uses simulated financial data
+# - If ccxt is not available: Uses simulated crypto data
+
+# For local development with full features, uncomment:
+# tensorflow>=2.10.0
+# ccxt>=4.0.0
+# statsmodels>=0.14.0
