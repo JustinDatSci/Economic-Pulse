@@ -39,7 +39,7 @@ try:
     YFINANCE_AVAILABLE = True
 except ImportError:
     YFINANCE_AVAILABLE = False
-    st.info("📊 Install yfinance for real stock data: pip install yfinance")
+    st.info("📊 Using simulated financial data (install yfinance for real data)")
 
 # Page configuration
 st.set_page_config(
@@ -150,6 +150,184 @@ class EnhancedDataLoader:
         dates = pd.date_range('2020-01-01', datetime.now(), freq='M')
         
         for series_id, info in indicators.items():
+            values = self.generate_economic_series(info['base'], len(dates), series_id)
+            
+            for date, value in zip(dates, values):
+                data.append({
+                    'date': date.date(),
+                    'value': value,
+                    'series_id': series_id,
+                    'series_name': info['name'],
+                    'category': info['category'],
+                    'unit': '%' if 'Rate' in info['name'] else 'Index',
+                    'asset_type': 'Economic'
+                })
+        
+        return data
+    
+    def load_stock_market_data(self):
+        """Load stock market data"""
+        
+        stocks = {
+            'SPY': {'name': 'S&P 500 ETF', 'base': 450.0},
+            'QQQ': {'name': 'NASDAQ 100 ETF', 'base': 380.0},
+            'IWM': {'name': 'Russell 2000 ETF', 'base': 200.0},
+            'GLD': {'name': 'Gold ETF', 'base': 180.0},
+            'VTI': {'name': 'Total Stock Market ETF', 'base': 240.0},
+            'TLT': {'name': '20+ Year Treasury ETF', 'base': 90.0}
+        }
+        
+        data = []
+        
+        # Try real data first if available
+        if YFINANCE_AVAILABLE:
+            for symbol, info in stocks.items():
+                try:
+                    ticker = yf.Ticker(symbol)
+                    hist = ticker.history(period='1y')
+                    
+                    for date, row in hist.iterrows():
+                        data.append({
+                            'date': date.date(),
+                            'value': row['Close'],
+                            'volume': row['Volume'],
+                            'high': row['High'],
+                            'low': row['Low'],
+                            'open': row['Open'],
+                            'series_id': symbol,
+                            'series_name': info['name'],
+                            'category': 'Stock Market',
+                            'unit': 'USD',
+                            'asset_type': 'Equity'
+                        })
+                    continue
+                except:
+                    pass
+                
+                # Fallback to simulated data
+                dates = pd.date_range('2023-01-01', datetime.now(), freq='D')
+                prices = self.generate_stock_series(info['base'], len(dates))
+                
+                for date, price in zip(dates, prices):
+                    data.append({
+                        'date': date.date(),
+                        'value': price,
+                        'volume': np.random.randint(1000000, 10000000),
+                        'high': price * 1.02,
+                        'low': price * 0.98,
+                        'open': price * 0.999,
+                        'series_id': symbol,
+                        'series_name': info['name'],
+                        'category': 'Stock Market',
+                        'unit': 'USD',
+                        'asset_type': 'Equity'
+                    })
+        else:
+            # Use simulated data
+            for symbol, info in stocks.items():
+                dates = pd.date_range('2023-01-01', datetime.now(), freq='D')
+                prices = self.generate_stock_series(info['base'], len(dates))
+                
+                for date, price in zip(dates, prices):
+                    data.append({
+                        'date': date.date(),
+                        'value': price,
+                        'volume': np.random.randint(1000000, 10000000),
+                        'high': price * 1.02,
+                        'low': price * 0.98,
+                        'open': price * 0.999,
+                        'series_id': symbol,
+                        'series_name': info['name'],
+                        'category': 'Stock Market',
+                        'unit': 'USD',
+                        'asset_type': 'Equity'
+                    })
+        
+        return data
+    
+    def load_cryptocurrency_data(self):
+        """Load cryptocurrency data"""
+        
+        cryptos = {
+            'BTCUSDT': {'name': 'Bitcoin Price', 'base': 45000.0},
+            'ETHUSDT': {'name': 'Ethereum Price', 'base': 3000.0},
+            'BNBUSDT': {'name': 'Binance Coin Price', 'base': 300.0},
+            'ADAUSDT': {'name': 'Cardano Price', 'base': 0.5},
+            'SOLUSDT': {'name': 'Solana Price', 'base': 100.0}
+        }
+        
+        data = []
+        dates = pd.date_range('2023-01-01', datetime.now(), freq='D')
+        
+        for symbol, info in cryptos.items():
+            prices = self.generate_crypto_series(info['base'], len(dates))
+            
+            for date, price in zip(dates, prices):
+                data.append({
+                    'date': date.date(),
+                    'value': price,
+                    'volume': np.random.randint(100000, 1000000),
+                    'high': price * 1.05,
+                    'low': price * 0.95,
+                    'open': price * 0.998,
+                    'series_id': symbol,
+                    'series_name': info['name'],
+                    'category': 'Cryptocurrency',
+                    'unit': 'USDT',
+                    'asset_type': 'Crypto'
+                })
+        
+        return data
+    
+    def load_forex_data(self):
+        """Load forex data"""
+        
+        forex_pairs = {
+            'EURUSD': {'name': 'EUR/USD Exchange Rate', 'base': 1.08},
+            'GBPUSD': {'name': 'GBP/USD Exchange Rate', 'base': 1.25},
+            'USDJPY': {'name': 'USD/JPY Exchange Rate', 'base': 150.0},
+            'AUDUSD': {'name': 'AUD/USD Exchange Rate', 'base': 0.65}
+        }
+        
+        data = []
+        dates = pd.date_range('2023-01-01', datetime.now(), freq='D')
+        
+        for pair, info in forex_pairs.items():
+            rates = self.generate_forex_series(info['base'], len(dates))
+            
+            for date, rate in zip(dates, rates):
+                data.append({
+                    'date': date.date(),
+                    'value': rate,
+                    'volume': np.random.randint(1000000, 10000000),
+                    'high': rate * 1.01,
+                    'low': rate * 0.99,
+                    'open': rate * 0.999,
+                    'series_id': pair,
+                    'series_name': info['name'],
+                    'category': 'Forex',
+                    'unit': 'Exchange Rate',
+                    'asset_type': 'Currency'
+                })
+        
+        return data
+    
+    def load_international_data(self):
+        """Load international economic data"""
+        
+        intl_indicators = {
+            'UK_UNEMPLOYMENT': {'name': 'UK Unemployment Rate', 'base': 4.5, 'country': 'United Kingdom'},
+            'DE_UNEMPLOYMENT': {'name': 'Germany Unemployment Rate', 'base': 3.8, 'country': 'Germany'},
+            'JP_UNEMPLOYMENT': {'name': 'Japan Unemployment Rate', 'base': 2.5, 'country': 'Japan'},
+            'UK_INTEREST': {'name': 'UK Interest Rate', 'base': 2.2, 'country': 'United Kingdom'},
+            'DE_INTEREST': {'name': 'Germany Interest Rate', 'base': 1.8, 'country': 'Germany'},
+            'UK_CPI': {'name': 'UK Consumer Price Index', 'base': 105.0, 'country': 'United Kingdom'}
+        }
+        
+        data = []
+        dates = pd.date_range('2020-01-01', datetime.now(), freq='M')
+        
+        for series_id, info in intl_indicators.items():
             values = self.generate_economic_series(info['base'], len(dates), series_id)
             
             for date, value in zip(dates, values):
@@ -602,8 +780,8 @@ def main():
         st.subheader("📈 Stock Market Deep Analysis")
         
         # Stock performance table
-        if 'Stock Market' in portfolio_analysis:
-            stock_metrics = portfolio_analysis['Stock Market']
+        if 'Equity' in portfolio_analysis:
+            stock_metrics = portfolio_analysis['Equity']
             
             st.markdown("### 🏆 Stock Performance Metrics")
             
@@ -880,182 +1058,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-d,
-                    'series_name': info['name'],
-                    'category': info['category'],
-                    'unit': '%' if 'Rate' in info['name'] else 'Index',
-                    'asset_type': 'Economic'
-                })
-        
-        return data
-    
-    def load_stock_market_data(self):
-        """Load stock market data"""
-        
-        stocks = {
-            'SPY': {'name': 'S&P 500 ETF', 'base': 450.0},
-            'QQQ': {'name': 'NASDAQ 100 ETF', 'base': 380.0},
-            'IWM': {'name': 'Russell 2000 ETF', 'base': 200.0},
-            'GLD': {'name': 'Gold ETF', 'base': 180.0},
-            'VTI': {'name': 'Total Stock Market ETF', 'base': 240.0},
-            'TLT': {'name': '20+ Year Treasury ETF', 'base': 90.0}
-        }
-        
-        data = []
-        
-        # Try real data first if available
-        if YFINANCE_AVAILABLE:
-            for symbol, info in stocks.items():
-                try:
-                    ticker = yf.Ticker(symbol)
-                    hist = ticker.history(period='1y')
-                    
-                    for date, row in hist.iterrows():
-                        data.append({
-                            'date': date.date(),
-                            'value': row['Close'],
-                            'volume': row['Volume'],
-                            'high': row['High'],
-                            'low': row['Low'],
-                            'open': row['Open'],
-                            'series_id': symbol,
-                            'series_name': info['name'],
-                            'category': 'Stock Market',
-                            'unit': 'USD',
-                            'asset_type': 'Equity'
-                        })
-                    continue
-                except:
-                    pass
-                
-                # Fallback to simulated data
-                dates = pd.date_range('2023-01-01', datetime.now(), freq='D')
-                prices = self.generate_stock_series(info['base'], len(dates))
-                
-                for date, price in zip(dates, prices):
-                    data.append({
-                        'date': date.date(),
-                        'value': price,
-                        'volume': np.random.randint(1000000, 10000000),
-                        'high': price * 1.02,
-                        'low': price * 0.98,
-                        'open': price * 0.999,
-                        'series_id': symbol,
-                        'series_name': info['name'],
-                        'category': 'Stock Market',
-                        'unit': 'USD',
-                        'asset_type': 'Equity'
-                    })
-        else:
-            # Use simulated data
-            for symbol, info in stocks.items():
-                dates = pd.date_range('2023-01-01', datetime.now(), freq='D')
-                prices = self.generate_stock_series(info['base'], len(dates))
-                
-                for date, price in zip(dates, prices):
-                    data.append({
-                        'date': date.date(),
-                        'value': price,
-                        'volume': np.random.randint(1000000, 10000000),
-                        'high': price * 1.02,
-                        'low': price * 0.98,
-                        'open': price * 0.999,
-                        'series_id': symbol,
-                        'series_name': info['name'],
-                        'category': 'Stock Market',
-                        'unit': 'USD',
-                        'asset_type': 'Equity'
-                    })
-        
-        return data
-    
-    def load_cryptocurrency_data(self):
-        """Load cryptocurrency data"""
-        
-        cryptos = {
-            'BTCUSDT': {'name': 'Bitcoin Price', 'base': 45000.0},
-            'ETHUSDT': {'name': 'Ethereum Price', 'base': 3000.0},
-            'BNBUSDT': {'name': 'Binance Coin Price', 'base': 300.0},
-            'ADAUSDT': {'name': 'Cardano Price', 'base': 0.5},
-            'SOLUSDT': {'name': 'Solana Price', 'base': 100.0}
-        }
-        
-        data = []
-        dates = pd.date_range('2023-01-01', datetime.now(), freq='D')
-        
-        for symbol, info in cryptos.items():
-            prices = self.generate_crypto_series(info['base'], len(dates))
-            
-            for date, price in zip(dates, prices):
-                data.append({
-                    'date': date.date(),
-                    'value': price,
-                    'volume': np.random.randint(100000, 1000000),
-                    'high': price * 1.05,
-                    'low': price * 0.95,
-                    'open': price * 0.998,
-                    'series_id': symbol,
-                    'series_name': info['name'],
-                    'category': 'Cryptocurrency',
-                    'unit': 'USDT',
-                    'asset_type': 'Crypto'
-                })
-        
-        return data
-    
-    def load_forex_data(self):
-        """Load forex data"""
-        
-        forex_pairs = {
-            'EURUSD': {'name': 'EUR/USD Exchange Rate', 'base': 1.08},
-            'GBPUSD': {'name': 'GBP/USD Exchange Rate', 'base': 1.25},
-            'USDJPY': {'name': 'USD/JPY Exchange Rate', 'base': 150.0},
-            'AUDUSD': {'name': 'AUD/USD Exchange Rate', 'base': 0.65}
-        }
-        
-        data = []
-        dates = pd.date_range('2023-01-01', datetime.now(), freq='D')
-        
-        for pair, info in forex_pairs.items():
-            rates = self.generate_forex_series(info['base'], len(dates))
-            
-            for date, rate in zip(dates, rates):
-                data.append({
-                    'date': date.date(),
-                    'value': rate,
-                    'volume': np.random.randint(1000000, 10000000),
-                    'high': rate * 1.01,
-                    'low': rate * 0.99,
-                    'open': rate * 0.999,
-                    'series_id': pair,
-                    'series_name': info['name'],
-                    'category': 'Forex',
-                    'unit': 'Exchange Rate',
-                    'asset_type': 'Currency'
-                })
-        
-        return data
-    
-    def load_international_data(self):
-        """Load international economic data"""
-        
-        intl_indicators = {
-            'UK_UNEMPLOYMENT': {'name': 'UK Unemployment Rate', 'base': 4.5, 'country': 'United Kingdom'},
-            'DE_UNEMPLOYMENT': {'name': 'Germany Unemployment Rate', 'base': 3.8, 'country': 'Germany'},
-            'JP_UNEMPLOYMENT': {'name': 'Japan Unemployment Rate', 'base': 2.5, 'country': 'Japan'},
-            'UK_INTEREST': {'name': 'UK Interest Rate', 'base': 2.2, 'country': 'United Kingdom'},
-            'DE_INTEREST': {'name': 'Germany Interest Rate', 'base': 1.8, 'country': 'Germany'},
-            'UK_CPI': {'name': 'UK Consumer Price Index', 'base': 105.0, 'country': 'United Kingdom'}
-        }
-        
-        data = []
-        dates = pd.date_range('2020-01-01', datetime.now(), freq='M')
-        
-        for series_id, info in intl_indicators.items():
-            values = self.generate_economic_series(info['base'], len(dates), series_id)
-            
-            for date, value in zip(dates, values):
-                data.append({
-                    'date': date.date(),
-                    'value': value,
-                    'series_id': series_i
