@@ -106,7 +106,6 @@ class EnhancedDataLoader:
     def __init__(self):
         self.cache_duration = 1800  # 30 minutes
     
-    @st.cache_data(ttl=1800)
     def load_all_data(self):
         """Load comprehensive multi-asset data"""
         
@@ -543,6 +542,13 @@ class PortfolioAnalyzer:
         
         return analysis
 
+# Cached data loading function (outside of class to avoid hashing issues)
+@st.cache_data(ttl=1800)
+def load_comprehensive_data():
+    """Load comprehensive multi-asset data with caching"""
+    data_loader = EnhancedDataLoader()
+    return data_loader.load_all_data()
+
 def main():
     """Main application"""
     
@@ -569,10 +575,9 @@ def main():
     use_advanced_ml = st.sidebar.checkbox("🧠 Advanced ML", value=ML_AVAILABLE)
     use_lstm = st.sidebar.checkbox("🔮 LSTM Networks", value=LSTM_AVAILABLE)
     
-    # Load data
+    # Load data using cached function
     with st.spinner("🔄 Loading multi-asset financial data..."):
-        data_loader = EnhancedDataLoader()
-        df = data_loader.load_all_data()
+        df = load_comprehensive_data()
     
     if df.empty:
         st.error("❌ Unable to load data. Please try again later.")
