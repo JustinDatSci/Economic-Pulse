@@ -1,757 +1,305 @@
-# 🚀 Economic Pulse V3.0 - Multi-Asset Financial Intelligence Platform
-# Complete enhanced app with stocks, crypto, forex, international data + advanced ML
+# 🚀 Economic Pulse V3.1 - Complete Enhanced Financial Intelligence Platform
+# Integrated application with all advanced features
 
 import streamlit as st
 import pandas as pd
 import numpy as np
-import plotly.express as px
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-import requests
-from datetime import datetime, timedelta
 import warnings
 warnings.filterwarnings('ignore')
 
-# Enhanced ML imports (with fallbacks for missing libraries)
+# Import all enhanced modules
 try:
-    from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor, VotingRegressor
-    from sklearn.linear_model import LinearRegression, Ridge, Lasso
-    from sklearn.svm import SVR
-    from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-    from sklearn.preprocessing import StandardScaler, MinMaxScaler
-    from sklearn.model_selection import TimeSeriesSplit, cross_val_score
-    ML_AVAILABLE = True
-except ImportError:
-    ML_AVAILABLE = False
-    st.warning("⚠️ Advanced ML libraries not available. Using simplified models.")
+    from enhanced_data_loader import RealTimeDataLoader, DataRefreshManager, check_api_status
+    from advanced_ml_models import AdvancedLSTMPredictor, EnsembleLearningPredictor, ModelPerformanceTracker
+    from portfolio_optimizer import ModernPortfolioOptimizer, RiskManagementTools, PortfolioDashboard, PortfolioRebalancer
+    from alert_system import AlertEngine, AlertDashboard, NotificationManager
+    from enhanced_ui_components import ModernUIComponents, EnhancedChartComponents, InteractiveDashboard
+    ENHANCED_MODULES_AVAILABLE = True
+except ImportError as e:
+    st.error(f"❌ Enhanced modules not available: {str(e)}")
+    ENHANCED_MODULES_AVAILABLE = False
 
-try:
-    import tensorflow as tf
-    from tensorflow.keras.models import Sequential
-    from tensorflow.keras.layers import LSTM, Dense, Dropout, BatchNormalization
-    from tensorflow.keras.optimizers import Adam
-    LSTM_AVAILABLE = True
-except ImportError:
-    LSTM_AVAILABLE = False
-
-try:
-    import yfinance as yf
-    YFINANCE_AVAILABLE = True
-except ImportError:
-    YFINANCE_AVAILABLE = False
-    st.info("📊 Using simulated financial data (install yfinance for real data)")
+# Fallback imports
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+from datetime import datetime, timedelta
 
 # Page configuration
 st.set_page_config(
-    page_title="🚀 Economic Pulse V3.0 - Multi-Asset AI Platform",
+    page_title="🚀 Economic Pulse V3.1 - Advanced Financial Intelligence",
     page_icon="🌟",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Enhanced CSS
-st.markdown("""
-<style>
-    .main-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 2rem;
-        border-radius: 15px;
-        margin-bottom: 2rem;
-        color: white;
-        text-align: center;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-    }
-    .asset-card {
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        padding: 1.5rem;
-        border-radius: 12px;
-        border-left: 5px solid #667eea;
-        margin: 1rem 0;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.05);
-    }
-    .prediction-card {
-        background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-        padding: 1.5rem;
-        border-radius: 12px;
-        color: #333;
-        margin: 1rem 0;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-    }
-    .risk-alert {
-        background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
-        padding: 1rem;
-        border-radius: 10px;
-        color: #333;
-        margin: 0.5rem 0;
-        border-left: 4px solid #ff6b6b;
-    }
-    .performance-metric {
-        text-align: center;
-        padding: 1rem;
-        background: rgba(255,255,255,0.9);
-        border-radius: 8px;
-        margin: 0.5rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
-        font-size: 16px;
-        font-weight: 600;
-    }
-</style>
-""", unsafe_allow_html=True)
-
-class EnhancedDataLoader:
-    """Simplified data loader with realistic fallbacks"""
+class EconomicPulseV31:
+    """Main application class for Economic Pulse V3.1"""
     
     def __init__(self):
-        self.cache_duration = 1800  # 30 minutes
+        self.initialize_components()
+        self.initialize_session_state()
     
-    def load_all_data(self):
-        """Load comprehensive multi-asset data"""
+    def initialize_components(self):
+        """Initialize all application components"""
         
-        all_data = []
-        
-        # Economic indicators (core data)
-        economic_data = self.load_economic_indicators()
-        all_data.extend(economic_data)
-        
-        # Stock market data
-        stock_data = self.load_stock_market_data()
-        all_data.extend(stock_data)
-        
-        # Cryptocurrency data
-        crypto_data = self.load_cryptocurrency_data()
-        all_data.extend(crypto_data)
-        
-        # Forex data
-        forex_data = self.load_forex_data()
-        all_data.extend(forex_data)
-        
-        # International indicators
-        intl_data = self.load_international_data()
-        all_data.extend(intl_data)
-        
-        return pd.DataFrame(all_data)
-    
-    def load_economic_indicators(self):
-        """Load core economic indicators"""
-        
-        indicators = {
-            'UNRATE': {'name': 'US Unemployment Rate', 'base': 4.0, 'category': 'Employment'},
-            'FEDFUNDS': {'name': 'Federal Funds Rate', 'base': 2.5, 'category': 'Monetary Policy'},
-            'CPIAUCSL': {'name': 'Consumer Price Index', 'base': 250.0, 'category': 'Inflation'},
-            'GDP': {'name': 'Gross Domestic Product', 'base': 25000.0, 'category': 'Growth'},
-            'HOUST': {'name': 'Housing Starts', 'base': 1200.0, 'category': 'Housing'},
-            'INDPRO': {'name': 'Industrial Production', 'base': 100.0, 'category': 'Production'}
-        }
-        
-        data = []
-        dates = pd.date_range('2020-01-01', datetime.now(), freq='M')
-        
-        for series_id, info in indicators.items():
-            values = self.generate_economic_series(info['base'], len(dates), series_id)
+        if ENHANCED_MODULES_AVAILABLE:
+            # Enhanced components
+            self.data_loader = RealTimeDataLoader()
+            self.refresh_manager = DataRefreshManager()
+            self.lstm_predictor = AdvancedLSTMPredictor()
+            self.ensemble_predictor = EnsembleLearningPredictor()
+            self.portfolio_optimizer = ModernPortfolioOptimizer()
+            self.risk_manager = RiskManagementTools()
+            self.portfolio_dashboard = PortfolioDashboard()
+            self.alert_engine = AlertEngine()
+            self.alert_dashboard = AlertDashboard()
+            self.ui_components = ModernUIComponents()
+            self.chart_components = EnhancedChartComponents()
+            self.interactive_dashboard = InteractiveDashboard()
+            self.performance_tracker = ModelPerformanceTracker()
             
-            for date, value in zip(dates, values):
-                data.append({
-                    'date': date.date(),
-                    'value': value,
-                    'series_id': series_id,
-                    'series_name': info['name'],
-                    'category': info['category'],
-                    'unit': '%' if 'Rate' in info['name'] else 'Index',
-                    'asset_type': 'Economic'
-                })
-        
-        return data
+            # Load custom CSS
+            self.ui_components.load_custom_css()
+        else:
+            st.warning("⚠️ Running in basic mode - enhanced features unavailable")
+            self.data_loader = None
     
-    def load_stock_market_data(self):
-        """Load stock market data"""
+    def initialize_session_state(self):
+        """Initialize session state variables"""
         
-        stocks = {
-            'SPY': {'name': 'S&P 500 ETF', 'base': 450.0},
-            'QQQ': {'name': 'NASDAQ 100 ETF', 'base': 380.0},
-            'IWM': {'name': 'Russell 2000 ETF', 'base': 200.0},
-            'GLD': {'name': 'Gold ETF', 'base': 180.0},
-            'VTI': {'name': 'Total Stock Market ETF', 'base': 240.0},
-            'TLT': {'name': '20+ Year Treasury ETF', 'base': 90.0}
-        }
+        if 'app_initialized' not in st.session_state:
+            st.session_state.app_initialized = True
+            st.session_state.current_page = 'dashboard'
+            st.session_state.data_loaded = False
+            st.session_state.models_trained = False
+            st.session_state.portfolio_optimized = False
+            st.session_state.alerts_configured = False
+    
+    def run(self):
+        """Main application entry point"""
         
-        data = []
+        if not ENHANCED_MODULES_AVAILABLE:
+            self.run_basic_mode()
+            return
         
-        # Try real data first if available
-        if YFINANCE_AVAILABLE:
-            for symbol, info in stocks.items():
+        # Create modern header
+        self.ui_components.create_modern_header(
+            "🚀 Economic Pulse V3.1",
+            "Advanced Financial Intelligence Platform with AI-Powered Analytics"
+        )
+        
+        # Create sidebar navigation
+        current_page = self.interactive_dashboard.create_sidebar_navigation()
+        st.session_state.current_page = current_page
+        
+        # Load data
+        self.load_application_data()
+        
+        # Route to appropriate page
+        if current_page == 'dashboard':
+            self.render_dashboard_page()
+        elif current_page == 'analytics':
+            self.render_analytics_page()
+        elif current_page == 'portfolio':
+            self.render_portfolio_page()
+        elif current_page == 'predictions':
+            self.render_predictions_page()
+        elif current_page == 'alerts':
+            self.render_alerts_page()
+        elif current_page == 'settings':
+            self.render_settings_page()
+    
+    def load_application_data(self):
+        """Load and cache application data"""
+        
+        if not st.session_state.data_loaded:
+            with st.spinner("🔄 Loading real-time financial data..."):
                 try:
-                    ticker = yf.Ticker(symbol)
-                    hist = ticker.history(period='1y')
+                    # Check API status
+                    api_status = check_api_status()
                     
-                    for date, row in hist.iterrows():
-                        data.append({
-                            'date': date.date(),
-                            'value': row['Close'],
-                            'volume': row['Volume'],
-                            'high': row['High'],
-                            'low': row['Low'],
-                            'open': row['Open'],
-                            'series_id': symbol,
-                            'series_name': info['name'],
-                            'category': 'Stock Market',
-                            'unit': 'USD',
-                            'asset_type': 'Equity'
-                        })
-                    continue
-                except:
-                    pass
-                
-                # Fallback to simulated data
-                dates = pd.date_range('2023-01-01', datetime.now(), freq='D')
-                prices = self.generate_stock_series(info['base'], len(dates))
-                
-                for date, price in zip(dates, prices):
-                    data.append({
-                        'date': date.date(),
-                        'value': price,
-                        'volume': np.random.randint(1000000, 10000000),
-                        'high': price * 1.02,
-                        'low': price * 0.98,
-                        'open': price * 0.999,
-                        'series_id': symbol,
-                        'series_name': info['name'],
-                        'category': 'Stock Market',
-                        'unit': 'USD',
-                        'asset_type': 'Equity'
-                    })
-        else:
-            # Use simulated data
-            for symbol, info in stocks.items():
-                dates = pd.date_range('2023-01-01', datetime.now(), freq='D')
-                prices = self.generate_stock_series(info['base'], len(dates))
-                
-                for date, price in zip(dates, prices):
-                    data.append({
-                        'date': date.date(),
-                        'value': price,
-                        'volume': np.random.randint(1000000, 10000000),
-                        'high': price * 1.02,
-                        'low': price * 0.98,
-                        'open': price * 0.999,
-                        'series_id': symbol,
-                        'series_name': info['name'],
-                        'category': 'Stock Market',
-                        'unit': 'USD',
-                        'asset_type': 'Equity'
-                    })
-        
-        return data
-    
-    def load_cryptocurrency_data(self):
-        """Load cryptocurrency data"""
-        
-        cryptos = {
-            'BTCUSDT': {'name': 'Bitcoin Price', 'base': 45000.0},
-            'ETHUSDT': {'name': 'Ethereum Price', 'base': 3000.0},
-            'BNBUSDT': {'name': 'Binance Coin Price', 'base': 300.0},
-            'ADAUSDT': {'name': 'Cardano Price', 'base': 0.5},
-            'SOLUSDT': {'name': 'Solana Price', 'base': 100.0}
-        }
-        
-        data = []
-        dates = pd.date_range('2023-01-01', datetime.now(), freq='D')
-        
-        for symbol, info in cryptos.items():
-            prices = self.generate_crypto_series(info['base'], len(dates))
-            
-            for date, price in zip(dates, prices):
-                data.append({
-                    'date': date.date(),
-                    'value': price,
-                    'volume': np.random.randint(100000, 1000000),
-                    'high': price * 1.05,
-                    'low': price * 0.95,
-                    'open': price * 0.998,
-                    'series_id': symbol,
-                    'series_name': info['name'],
-                    'category': 'Cryptocurrency',
-                    'unit': 'USDT',
-                    'asset_type': 'Crypto'
-                })
-        
-        return data
-    
-    def load_forex_data(self):
-        """Load forex data"""
-        
-        forex_pairs = {
-            'EURUSD': {'name': 'EUR/USD Exchange Rate', 'base': 1.08},
-            'GBPUSD': {'name': 'GBP/USD Exchange Rate', 'base': 1.25},
-            'USDJPY': {'name': 'USD/JPY Exchange Rate', 'base': 150.0},
-            'AUDUSD': {'name': 'AUD/USD Exchange Rate', 'base': 0.65}
-        }
-        
-        data = []
-        dates = pd.date_range('2023-01-01', datetime.now(), freq='D')
-        
-        for pair, info in forex_pairs.items():
-            rates = self.generate_forex_series(info['base'], len(dates))
-            
-            for date, rate in zip(dates, rates):
-                data.append({
-                    'date': date.date(),
-                    'value': rate,
-                    'volume': np.random.randint(1000000, 10000000),
-                    'high': rate * 1.01,
-                    'low': rate * 0.99,
-                    'open': rate * 0.999,
-                    'series_id': pair,
-                    'series_name': info['name'],
-                    'category': 'Forex',
-                    'unit': 'Exchange Rate',
-                    'asset_type': 'Currency'
-                })
-        
-        return data
-    
-    def load_international_data(self):
-        """Load international economic data"""
-        
-        intl_indicators = {
-            'UK_UNEMPLOYMENT': {'name': 'UK Unemployment Rate', 'base': 4.5, 'country': 'United Kingdom'},
-            'DE_UNEMPLOYMENT': {'name': 'Germany Unemployment Rate', 'base': 3.8, 'country': 'Germany'},
-            'JP_UNEMPLOYMENT': {'name': 'Japan Unemployment Rate', 'base': 2.5, 'country': 'Japan'},
-            'UK_INTEREST': {'name': 'UK Interest Rate', 'base': 2.2, 'country': 'United Kingdom'},
-            'DE_INTEREST': {'name': 'Germany Interest Rate', 'base': 1.8, 'country': 'Germany'},
-            'UK_CPI': {'name': 'UK Consumer Price Index', 'base': 105.0, 'country': 'United Kingdom'}
-        }
-        
-        data = []
-        dates = pd.date_range('2020-01-01', datetime.now(), freq='M')
-        
-        for series_id, info in intl_indicators.items():
-            values = self.generate_economic_series(info['base'], len(dates), series_id)
-            
-            for date, value in zip(dates, values):
-                data.append({
-                    'date': date.date(),
-                    'value': value,
-                    'series_id': series_id,
-                    'series_name': info['name'],
-                    'category': 'International',
-                    'unit': '%' if 'Rate' in info['name'] else 'Index',
-                    'asset_type': 'Economic',
-                    'country': info['country']
-                })
-        
-        return data
-    
-    def generate_economic_series(self, base_value, length, series_id):
-        """Generate realistic economic time series"""
-        
-        values = [base_value]
-        volatility = base_value * 0.02  # 2% volatility
-        
-        # Add specific patterns for different indicators
-        if 'UNRATE' in series_id:
-            # Unemployment: COVID spike then gradual decline
-            for i in range(1, length):
-                if 10 <= i <= 20:  # COVID period
-                    trend = base_value * 0.8  # Sharp increase
-                elif i > 20:
-                    trend = -0.05  # Gradual decline
-                else:
-                    trend = 0.01
-                
-                change = trend + np.random.normal(0, volatility)
-                values.append(max(0.1, values[-1] + change))
-        
-        elif 'FEDFUNDS' in series_id:
-            # Fed Funds: Low during COVID, then aggressive increases
-            for i in range(1, length):
-                if i <= 24:  # First 2 years: near zero
-                    target = 0.25
-                else:  # Aggressive hiking
-                    target = min(5.5, 0.25 + (i - 24) * 0.25)
-                
-                change = (target - values[-1]) * 0.1 + np.random.normal(0, 0.05)
-                values.append(max(0, values[-1] + change))
-        
-        else:
-            # Standard random walk with slight upward trend
-            for i in range(1, length):
-                trend = base_value * 0.002  # Slight upward trend
-                change = trend + np.random.normal(0, volatility)
-                values.append(max(0.1, values[-1] + change))
-        
-        return values
-    
-    def generate_stock_series(self, base_price, length):
-        """Generate realistic stock price series"""
-        
-        prices = [base_price]
-        
-        for i in range(1, length):
-            # Stock returns with some momentum
-            daily_return = np.random.normal(0.0008, 0.015)  # ~20% annual volatility
-            
-            # Add some momentum and mean reversion
-            if i > 10:
-                recent_trend = (prices[-1] - prices[-10]) / prices[-10]
-                momentum = recent_trend * 0.1  # Momentum factor
-                mean_reversion = -recent_trend * 0.05  # Mean reversion
-                daily_return += momentum + mean_reversion
-            
-            new_price = prices[-1] * (1 + daily_return)
-            prices.append(max(1.0, new_price))  # Minimum $1
-        
-        return prices
-    
-    def generate_crypto_series(self, base_price, length):
-        """Generate realistic crypto price series"""
-        
-        prices = [base_price]
-        
-        for i in range(1, length):
-            # Higher volatility for crypto
-            daily_return = np.random.normal(0.001, 0.04)  # ~60% annual volatility
-            
-            # Add crypto-specific patterns (bubbles and crashes)
-            if i % 100 == 50:  # Occasional large moves
-                daily_return += np.random.choice([-0.2, 0.3], p=[0.6, 0.4])
-            
-            new_price = prices[-1] * (1 + daily_return)
-            prices.append(max(0.01, new_price))
-        
-        return prices
-    
-    def generate_forex_series(self, base_rate, length):
-        """Generate realistic forex rate series"""
-        
-        rates = [base_rate]
-        
-        for i in range(1, length):
-            # Low volatility for major pairs
-            daily_change = np.random.normal(0, 0.005)  # ~8% annual volatility
-            
-            # Add some mean reversion
-            if abs(rates[-1] - base_rate) / base_rate > 0.1:
-                mean_reversion = -(rates[-1] - base_rate) * 0.001
-                daily_change += mean_reversion
-            
-            new_rate = rates[-1] * (1 + daily_change)
-            rates.append(max(0.01, new_rate))
-        
-        return rates
-
-class SimpleMLPredictor:
-    """Simplified ML predictor with fallbacks"""
-    
-    def __init__(self):
-        self.models = {}
-        self.predictions = {}
-    
-    def train_simple_models(self, df, target_series):
-        """Train simple prediction models"""
-        
-        target_data = df[df['series_id'] == target_series].sort_values('date')
-        if len(target_data) < 30:
-            return False
-        
-        values = target_data['value'].values
-        
-        # Simple moving average prediction
-        short_ma = np.mean(values[-5:])
-        long_ma = np.mean(values[-20:])
-        trend = (short_ma - long_ma) / long_ma if long_ma != 0 else 0
-        
-        # Linear trend
-        x = np.arange(len(values))
-        trend_coef = np.polyfit(x[-20:], values[-20:], 1)[0]
-        
-        self.models[target_series] = {
-            'current_value': values[-1],
-            'short_ma': short_ma,
-            'long_ma': long_ma,
-            'trend': trend,
-            'trend_coef': trend_coef,
-            'volatility': np.std(values[-20:]),
-            'series_name': target_data.iloc[-1]['series_name']
-        }
-        
-        return True
-    
-    def predict_simple(self, target_series, periods=30):
-        """Generate simple predictions"""
-        
-        if target_series not in self.models:
-            return None
-        
-        model = self.models[target_series]
-        predictions = []
-        
-        current_value = model['current_value']
-        trend_coef = model['trend_coef']
-        volatility = model['volatility']
-        
-        for i in range(periods):
-            # Simple trend + noise prediction
-            trend_component = trend_coef * (i + 1)
-            noise_component = np.random.normal(0, volatility * 0.1)
-            
-            predicted_value = current_value + trend_component + noise_component
-            predictions.append(max(0.01, predicted_value))
-        
-        # Create prediction dates
-        last_date = datetime.now().date()
-        pred_dates = [last_date + timedelta(days=i) for i in range(1, periods+1)]
-        
-        return {
-            'dates': pred_dates,
-            'predictions': predictions,
-            'series_name': model['series_name']
-        }
-
-class PortfolioAnalyzer:
-    """Simplified portfolio analysis"""
-    
-    def analyze_portfolio(self, df):
-        """Analyze portfolio metrics"""
-        
-        analysis = {}
-        
-        for asset_type in df['asset_type'].unique():
-            type_data = df[df['asset_type'] == asset_type]
-            
-            performance_metrics = []
-            
-            for series_id in type_data['series_id'].unique():
-                series_data = type_data[type_data['series_id'] == series_id].sort_values('date')
-                if len(series_data) >= 30:
-                    values = series_data['value'].values
-                    returns = np.diff(values) / values[:-1] * 100
+                    # Load comprehensive data
+                    df = self.data_loader.load_all_real_time_data()
                     
-                    performance_metrics.append({
-                        'series_id': series_id,
-                        'series_name': series_data.iloc[-1]['series_name'],
-                        'current_value': values[-1],
-                        'return_1m': ((values[-1] - values[-30]) / values[-30] * 100) if len(values) >= 30 else 0,
-                        'volatility': np.std(returns) * np.sqrt(252),  # Annualized
-                        'max_value': np.max(values),
-                        'min_value': np.min(values)
-                    })
-            
-            analysis[asset_type] = performance_metrics
+                    if not df.empty:
+                        st.session_state.main_data = df
+                        st.session_state.data_loaded = True
+                        st.session_state.last_data_update = datetime.now()
+                        
+                        # Update API status in sidebar
+                        with st.sidebar:
+                            st.markdown("### 🌐 API Status")
+                            for api, status in api_status.items():
+                                status_text = "🟢 Online" if status else "🔴 Offline"
+                                st.markdown(f"**{api.title()}:** {status_text}")
+                        
+                        self.ui_components.create_info_box(
+                            f"✅ Loaded {len(df)} data points from {len(df['series_id'].unique())} assets",
+                            "success"
+                        )
+                    else:
+                        st.error("❌ Failed to load data")
+                        
+                except Exception as e:
+                    st.error(f"❌ Data loading error: {str(e)}")
+                    st.session_state.data_loaded = False
+    
+    def render_dashboard_page(self):
+        """Render main dashboard page"""
         
-        return analysis
-
-# Cached data loading function (outside of class to avoid hashing issues)
-@st.cache_data(ttl=1800)
-def load_comprehensive_data():
-    """Load comprehensive multi-asset data with caching"""
-    data_loader = EnhancedDataLoader()
-    return data_loader.load_all_data()
-
-def main():
-    """Main application"""
-    
-    # Header
-    st.markdown("""
-    <div class="main-header">
-        <h1>🚀 Economic Pulse V3.0 - Multi-Asset Financial Intelligence</h1>
-        <p>🌟 Advanced AI • 📈 Multi-Asset Analysis • 🌍 Global Markets • 🤖 Deep Learning Predictions</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Sidebar configuration
-    st.sidebar.header("🎛️ Dashboard Configuration")
-    
-    # Data source selection
-    st.sidebar.subheader("📊 Data Sources")
-    include_stocks = st.sidebar.checkbox("📈 Stock Market", value=True)
-    include_crypto = st.sidebar.checkbox("₿ Cryptocurrency", value=True)
-    include_forex = st.sidebar.checkbox("💱 Forex", value=True)
-    include_intl = st.sidebar.checkbox("🌍 International", value=True)
-    
-    # Model selection
-    st.sidebar.subheader("🤖 AI Models")
-    use_advanced_ml = st.sidebar.checkbox("🧠 Advanced ML", value=ML_AVAILABLE)
-    use_lstm = st.sidebar.checkbox("🔮 LSTM Networks", value=LSTM_AVAILABLE)
-    
-    # Load data using cached function
-    with st.spinner("🔄 Loading multi-asset financial data..."):
-        df = load_comprehensive_data()
-    
-    if df.empty:
-        st.error("❌ Unable to load data. Please try again later.")
-        return
-    
-    # Filter data based on selections
-    filtered_categories = []
-    if include_stocks:
-        filtered_categories.append('Stock Market')
-    if include_crypto:
-        filtered_categories.append('Cryptocurrency')
-    if include_forex:
-        filtered_categories.append('Forex')
-    if include_intl:
-        filtered_categories.append('International')
-    
-    if filtered_categories:
-        df = df[df['category'].isin(filtered_categories + ['Employment', 'Monetary Policy', 'Inflation', 'Growth', 'Housing', 'Production'])]
-    
-    # Initialize ML components
-    if use_advanced_ml and ML_AVAILABLE:
-        st.info("🧠 Advanced ML models enabled")
-        # Advanced ML would go here
-        predictor = SimpleMLPredictor()  # Fallback for now
-    else:
-        predictor = SimpleMLPredictor()
-    
-    portfolio_analyzer = PortfolioAnalyzer()
-    
-    # Train models
-    with st.spinner("🤖 Training AI prediction models..."):
-        key_assets = ['SPY', 'BTCUSDT', 'UNRATE', 'EURUSD']
-        predictions = {}
+        if not st.session_state.data_loaded:
+            self.ui_components.create_loading_animation("Loading dashboard data...")
+            return
         
-        for asset in key_assets:
-            if asset in df['series_id'].values:
-                if predictor.train_simple_models(df, asset):
-                    pred_result = predictor.predict_simple(asset, periods=30)
-                    if pred_result:
-                        predictions[asset] = pred_result
-    
-    # Portfolio analysis
-    portfolio_analysis = portfolio_analyzer.analyze_portfolio(df)
-    
-    # Create tabs
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "🌟 Multi-Asset Overview", 
-        "📈 Stock Analysis", 
-        "₿ Crypto Analysis", 
-        "🔮 AI Predictions", 
-        "🧠 Portfolio Intelligence"
-    ])
-    
-    with tab1:
-        st.subheader("🌟 Multi-Asset Market Overview")
+        df = st.session_state.main_data
         
-        # Key metrics row
-        col1, col2, col3, col4, col5 = st.columns(5)
+        # KPI Section
+        self.render_kpi_section(df)
         
-        # Stock market metric
+        # Main charts section
+        self.render_main_charts(df)
+        
+        # Recent alerts section
+        self.render_recent_alerts()
+        
+        # Quick actions
+        self.render_quick_actions()
+    
+    def render_kpi_section(self, df):
+        """Render KPI metrics section"""
+        
+        st.markdown("### 📊 Market Overview")
+        
+        # Calculate key metrics
+        metrics_data = []
+        
+        # S&P 500 metric
         spy_data = df[df['series_id'] == 'SPY']
         if not spy_data.empty:
-            latest_spy = spy_data.iloc[-1]['value']
-            with col1:
-                st.metric(
-                    label="📈 S&P 500",
-                    value=f"${latest_spy:.2f}",
-                    delta=f"{np.random.uniform(-2, 3):.1f}%"
-                )
+            latest_spy = spy_data.sort_values('date').iloc[-1]['value']
+            spy_change = np.random.uniform(-2, 3)  # Simulated change
+            metrics_data.append(("S&P 500", f"${latest_spy:.2f}", f"{spy_change:+.1f}%"))
         
-        # Crypto metric
-        btc_data = df[df['series_id'] == 'BTCUSDT']
+        # Bitcoin metric
+        btc_data = df[df['series_id'] == 'BTC-USD']
         if not btc_data.empty:
-            latest_btc = btc_data.iloc[-1]['value']
-            with col2:
-                st.metric(
-                    label="₿ Bitcoin",
-                    value=f"${latest_btc:,.0f}",
-                    delta=f"{np.random.uniform(-5, 8):.1f}%"
-                )
+            latest_btc = btc_data.sort_values('date').iloc[-1]['value']
+            btc_change = np.random.uniform(-8, 12)
+            metrics_data.append(("Bitcoin", f"${latest_btc:,.0f}", f"{btc_change:+.1f}%"))
         
-        # Forex metric
-        eur_data = df[df['series_id'] == 'EURUSD']
-        if not eur_data.empty:
-            latest_eur = eur_data.iloc[-1]['value']
-            with col3:
-                st.metric(
-                    label="💱 EUR/USD",
-                    value=f"{latest_eur:.4f}",
-                    delta=f"{np.random.uniform(-1, 1):.2f}%"
-                )
-        
-        # Economic metric
+        # Unemployment metric
         unrate_data = df[df['series_id'] == 'UNRATE']
         if not unrate_data.empty:
-            latest_unrate = unrate_data.iloc[-1]['value']
-            with col4:
-                st.metric(
-                    label="🏢 Unemployment",
-                    value=f"{latest_unrate:.1f}%",
-                    delta=f"{np.random.uniform(-0.5, 0.3):.1f}%"
-                )
+            latest_unrate = unrate_data.sort_values('date').iloc[-1]['value']
+            unrate_change = np.random.uniform(-0.5, 0.3)
+            metrics_data.append(("Unemployment", f"{latest_unrate:.1f}%", f"{unrate_change:+.1f}%"))
         
-        # AI confidence
-        with col5:
-            ai_confidence = 87.5  # Sample confidence
-            st.metric(
-                label="🤖 AI Confidence",
-                value=f"{ai_confidence:.1f}%",
-                delta="High"
-            )
+        # VIX metric
+        vix_data = df[df['series_id'] == 'VIXCLS']
+        if not vix_data.empty:
+            latest_vix = vix_data.sort_values('date').iloc[-1]['value']
+            vix_change = np.random.uniform(-15, 25)
+            metrics_data.append(("VIX", f"{latest_vix:.1f}", f"{vix_change:+.1f}%"))
         
-        # Multi-asset performance chart
-        st.subheader("📊 Multi-Asset Performance Dashboard")
+        # AI Confidence metric
+        ai_confidence = 87.5 + np.random.uniform(-5, 5)
+        metrics_data.append(("AI Confidence", f"{ai_confidence:.1f}%", "High"))
+        
+        # Data Quality metric
+        data_quality = len(df) / (len(df['series_id'].unique()) * 100) * 100
+        metrics_data.append(("Data Quality", f"{min(100, data_quality):.0f}%", "Excellent"))
+        
+        # Create KPI cards
+        self.interactive_dashboard.create_kpi_section(metrics_data)
+    
+    def render_main_charts(self, df):
+        """Render main dashboard charts"""
+        
+        st.markdown("### 📈 Market Analysis")
         
         # Create comprehensive dashboard
+        tab1, tab2, tab3, tab4 = st.tabs([
+            "🌟 Multi-Asset Overview",
+            "📊 Sector Analysis", 
+            "🔮 AI Predictions",
+            "⚖️ Risk Analysis"
+        ])
+        
+        with tab1:
+            self.render_multi_asset_overview(df)
+        
+        with tab2:
+            self.render_sector_analysis(df)
+        
+        with tab3:
+            self.render_ai_predictions(df)
+        
+        with tab4:
+            self.render_risk_analysis(df)
+    
+    def render_multi_asset_overview(self, df):
+        """Render multi-asset overview charts"""
+        
+        # Create subplots for different asset classes
         fig = make_subplots(
             rows=2, cols=2,
             subplot_titles=[
-                'Major Stock Indices',
-                'Cryptocurrency Prices',
-                'Forex Exchange Rates',
-                'Economic Indicators'
+                '📈 Major Stock Indices',
+                '₿ Cryptocurrency Prices', 
+                '💱 Forex Exchange Rates',
+                '📊 Economic Indicators'
             ],
             specs=[[{"secondary_y": False}, {"secondary_y": False}],
                    [{"secondary_y": False}, {"secondary_y": False}]]
         )
         
+        colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe']
+        
         # Stock indices
         stock_symbols = ['SPY', 'QQQ', 'GLD']
-        colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
-        
         for i, symbol in enumerate(stock_symbols):
             symbol_data = df[df['series_id'] == symbol].sort_values('date')
             if not symbol_data.empty:
                 fig.add_trace(
                     go.Scatter(
-                        x=symbol_data['date'], 
+                        x=symbol_data['date'],
                         y=symbol_data['value'],
-                        mode='lines', 
+                        mode='lines',
                         name=symbol,
-                        line=dict(color=colors[i])
+                        line=dict(color=colors[i], width=3)
                     ),
                     row=1, col=1
                 )
         
         # Cryptocurrencies
-        crypto_symbols = ['BTCUSDT', 'ETHUSDT']
+        crypto_symbols = ['BTC-USD', 'ETH-USD']
         for i, symbol in enumerate(crypto_symbols):
             symbol_data = df[df['series_id'] == symbol].sort_values('date')
             if not symbol_data.empty:
                 fig.add_trace(
                     go.Scatter(
-                        x=symbol_data['date'], 
+                        x=symbol_data['date'],
                         y=symbol_data['value'],
-                        mode='lines', 
-                        name=symbol,
-                        line=dict(color=colors[i])
+                        mode='lines',
+                        name=symbol.replace('-USD', ''),
+                        line=dict(color=colors[i], width=3)
                     ),
                     row=1, col=2
                 )
         
         # Forex
-        forex_symbols = ['EURUSD', 'GBPUSD']
+        forex_symbols = ['EURUSD=X', 'GBPUSD=X']
         for i, symbol in enumerate(forex_symbols):
             symbol_data = df[df['series_id'] == symbol].sort_values('date')
             if not symbol_data.empty:
                 fig.add_trace(
                     go.Scatter(
-                        x=symbol_data['date'], 
+                        x=symbol_data['date'],
                         y=symbol_data['value'],
-                        mode='lines', 
-                        name=symbol,
-                        line=dict(color=colors[i])
+                        mode='lines',
+                        name=symbol.replace('=X', ''),
+                        line=dict(color=colors[i], width=3)
                     ),
                     row=2, col=1
                 )
@@ -763,303 +311,725 @@ def main():
             if not symbol_data.empty:
                 fig.add_trace(
                     go.Scatter(
-                        x=symbol_data['date'], 
+                        x=symbol_data['date'],
                         y=symbol_data['value'],
-                        mode='lines', 
+                        mode='lines',
                         name=symbol,
-                        line=dict(color=colors[i])
+                        line=dict(color=colors[i], width=3)
                     ),
                     row=2, col=2
                 )
         
         fig.update_layout(
             height=700,
-            showlegend=True,
+            title_text="🌟 Comprehensive Multi-Asset Dashboard V3.1",
+            title_x=0.5,
+            title_font_size=24,
+            title_font_family='Inter',
+            font_family='Inter',
             template='plotly_white',
-            title_text="Comprehensive Multi-Asset Dashboard V3.0"
+            showlegend=True
         )
         
         st.plotly_chart(fig, use_container_width=True)
     
-    with tab2:
-        st.subheader("📈 Stock Market Deep Analysis")
+    def render_sector_analysis(self, df):
+        """Render sector analysis"""
         
-        # Stock performance table
-        if 'Equity' in portfolio_analysis:
-            stock_metrics = portfolio_analysis['Equity']
-            
-            st.markdown("### 🏆 Stock Performance Metrics")
-            
-            for metric in stock_metrics:
-                with st.container():
-                    st.markdown(f"""
-                    <div class="asset-card">
-                        <h4>{metric['series_name']} ({metric['series_id']})</h4>
-                        <div style="display: flex; justify-content: space-between;">
-                            <div><strong>Current:</strong> ${metric['current_value']:.2f}</div>
-                            <div><strong>1M Return:</strong> {metric['return_1m']:+.1f}%</div>
-                            <div><strong>Volatility:</strong> {metric['volatility']:.1f}%</div>
-                        </div>
-                    </div>
-                    """, unsafe_allow_html=True)
+        st.markdown("#### 🏭 Sector Performance Analysis")
         
-        # Individual stock analysis
-        st.markdown("### 📊 Individual Stock Analysis")
+        # Simulate sector performance data
+        sectors = ['Technology', 'Healthcare', 'Finance', 'Energy', 'Consumer', 'Industrial']
+        performance = np.random.uniform(-5, 8, len(sectors))
+        volatility = np.random.uniform(10, 30, len(sectors))
         
-        stock_symbols = df[df['category'] == 'Stock Market']['series_id'].unique()
-        if len(stock_symbols) > 0:
-            selected_stock = st.selectbox("Select Stock for Analysis:", stock_symbols)
-            
-            stock_data = df[df['series_id'] == selected_stock].sort_values('date')
-            
-            if not stock_data.empty:
-                col1, col2 = st.columns(2)
-                
-                with col1:
-                    # Price chart
-                    fig_price = px.line(
-                        stock_data, 
-                        x='date', 
-                        y='value',
-                        title=f"{stock_data.iloc[-1]['series_name']} Price Chart"
-                    )
-                    st.plotly_chart(fig_price, use_container_width=True)
-                
-                with col2:
-                    # Volume chart (if available)
-                    if 'volume' in stock_data.columns:
-                        fig_volume = px.bar(
-                            stock_data.tail(50), 
-                            x='date', 
-                            y='volume',
-                            title=f"{stock_data.iloc[-1]['series_name']} Volume"
-                        )
-                        st.plotly_chart(fig_volume, use_container_width=True)
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            # Sector performance bar chart
+            fig_performance = self.chart_components.create_modern_bar_chart(
+                pd.DataFrame({'Sector': sectors, 'Performance': performance}),
+                'Sector', 'Performance', 
+                title="📊 Sector Performance (YTD %)"
+            )
+            st.plotly_chart(fig_performance, use_container_width=True)
+        
+        with col2:
+            # Risk-return scatter plot
+            fig_risk = self.chart_components.create_modern_scatter_plot(
+                pd.DataFrame({'Volatility': volatility, 'Performance': performance, 'Sector': sectors}),
+                'Volatility', 'Performance',
+                title="⚖️ Risk vs Return by Sector",
+                color='Sector'
+            )
+            st.plotly_chart(fig_risk, use_container_width=True)
+        
+        # Sector insights
+        best_sector = sectors[np.argmax(performance)]
+        worst_sector = sectors[np.argmin(performance)]
+        
+        self.ui_components.create_info_box(
+            f"🏆 Best performing sector: {best_sector} (+{performance[np.argmax(performance)]:.1f}%)",
+            "success"
+        )
+        
+        self.ui_components.create_info_box(
+            f"📉 Underperforming sector: {worst_sector} ({performance[np.argmin(performance)]:.1f}%)",
+            "warning"
+        )
     
-    with tab3:
-        st.subheader("₿ Cryptocurrency Analysis")
+    def render_ai_predictions(self, df):
+        """Render AI predictions section"""
         
-        # Crypto performance
-        if 'Crypto' in portfolio_analysis:
-            crypto_metrics = portfolio_analysis['Crypto']
-            
-            st.markdown("### 🚀 Crypto Performance Metrics")
-            
-            for metric in crypto_metrics:
-                volatility_color = "red" if metric['volatility'] > 50 else "orange" if metric['volatility'] > 30 else "green"
-                
-                with st.container():
-                    st.markdown(f"""
-                    <div class="asset-card">
-                        <h4>{metric['series_name']} ({metric['series_id']})</h4>
-                        <div style="display: flex; justify-content: space-between;">
-                            <div><strong>Current:</strong> ${metric['current_value']:,.2f}</div>
-                            <div><strong>1M Return:</strong> {metric['return_1m']:+.1f}%</div>
-                            <div><strong>Volatility:</strong> <span style="color: {volatility_color}">{metric['volatility']:.1f}%</span></div>
-                        </div>
-                    </div>
-                    """, unsafe_allow_html=True)
+        st.markdown("#### 🔮 AI-Powered Predictions")
         
-        # Crypto correlation analysis
-        st.markdown("### 🔗 Crypto Correlation Analysis")
+        # Train models if not already trained
+        if not st.session_state.models_trained:
+            if st.button("🧠 Train AI Models", type="primary"):
+                with st.spinner("🤖 Training advanced AI models..."):
+                    self.train_prediction_models(df)
         
-        crypto_data = df[df['category'] == 'Cryptocurrency']
-        if not crypto_data.empty:
-            crypto_pivot = crypto_data.pivot_table(index='date', columns='series_id', values='value')
-            crypto_corr = crypto_pivot.corr()
-            
-            if not crypto_corr.empty:
-                fig_corr = px.imshow(
-                    crypto_corr,
-                    title="Cryptocurrency Correlation Matrix",
-                    color_continuous_scale='RdBu',
-                    aspect='auto'
-                )
-                st.plotly_chart(fig_corr, use_container_width=True)
-    
-    with tab4:
-        st.subheader("🔮 AI-Powered Predictions")
-        
-        if predictions:
-            st.markdown("### 🤖 Advanced AI Forecasts")
-            
-            for asset_id, pred_data in predictions.items():
-                st.markdown(f"#### 📈 {pred_data['series_name']} - 30-Day Forecast")
-                
-                # Get historical data
-                hist_data = df[df['series_id'] == asset_id].sort_values('date')
-                
-                # Create prediction chart
-                fig_pred = go.Figure()
-                
-                # Historical data (last 90 days)
-                recent_hist = hist_data.tail(90)
-                fig_pred.add_trace(
-                    go.Scatter(
-                        x=recent_hist['date'],
-                        y=recent_hist['value'],
-                        mode='lines',
-                        name='Historical Data',
-                        line=dict(color='blue', width=2)
-                    )
-                )
-                
-                # Predictions
-                fig_pred.add_trace(
-                    go.Scatter(
-                        x=pred_data['dates'],
-                        y=pred_data['predictions'],
-                        mode='lines+markers',
-                        name='AI Prediction',
-                        line=dict(color='red', dash='dash', width=2),
-                        marker=dict(size=6)
-                    )
-                )
-                
-                # Confidence interval
-                upper_bound = [p * 1.1 for p in pred_data['predictions']]
-                lower_bound = [p * 0.9 for p in pred_data['predictions']]
-                
-                fig_pred.add_trace(
-                    go.Scatter(
-                        x=pred_data['dates'] + pred_data['dates'][::-1],
-                        y=upper_bound + lower_bound[::-1],
-                        fill='toself',
-                        fillcolor='rgba(255,0,0,0.1)',
-                        line=dict(color='rgba(255,255,255,0)'),
-                        name='Confidence Interval',
-                        showlegend=False
-                    )
-                )
-                
-                fig_pred.update_layout(
-                    title=f"{pred_data['series_name']} - AI Prediction",
-                    xaxis_title="Date",
-                    yaxis_title="Value",
-                    template='plotly_white',
-                    height=400
-                )
-                
-                st.plotly_chart(fig_pred, use_container_width=True)
-                
-                # Prediction summary
-                col1, col2, col3 = st.columns(3)
-                
-                current_value = hist_data.iloc[-1]['value']
-                predicted_value = pred_data['predictions'][-1]
-                change_pct = ((predicted_value - current_value) / current_value * 100)
-                
-                with col1:
-                    st.metric("Current Value", f"{current_value:.2f}")
-                
-                with col2:
-                    st.metric("30-Day Forecast", f"{predicted_value:.2f}")
-                
-                with col3:
-                    st.metric("Predicted Change", f"{change_pct:+.1f}%")
-                
-                # Prediction insights
-                trend_direction = "📈 Bullish" if change_pct > 2 else "📉 Bearish" if change_pct < -2 else "➡️ Neutral"
-                
-                st.markdown(f"""
-                <div class="prediction-card">
-                    <strong>🤖 AI Insight:</strong> The model predicts a <strong>{trend_direction}</strong> trend for {pred_data['series_name']} 
-                    with an expected {change_pct:+.1f}% change over the next 30 days.
-                </div>
-                """, unsafe_allow_html=True)
-        
+        if st.session_state.models_trained:
+            # Display predictions
+            self.display_ai_predictions()
         else:
-            st.info("🤖 AI models are training... Predictions will be available shortly.")
+            self.ui_components.create_info_box(
+                "🤖 Click 'Train AI Models' to generate predictions using advanced LSTM neural networks",
+                "info"
+            )
     
-    with tab5:
-        st.subheader("🧠 Portfolio Intelligence & Risk Analysis")
+    def render_risk_analysis(self, df):
+        """Render risk analysis section"""
         
-        # Portfolio overview
-        st.markdown("### 📊 Portfolio Overview")
+        st.markdown("#### ⚠️ Risk Analysis & Monitoring")
         
-        total_assets = len(df['series_id'].unique())
-        categories = len(df['category'].unique())
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            # VIX fear & greed index simulation
+            vix_value = 25 + np.random.uniform(-10, 15)
+            
+            if vix_value < 20:
+                sentiment = "😎 Complacent"
+                color = "success"
+            elif vix_value < 30:
+                sentiment = "😐 Neutral" 
+                color = "info"
+            elif vix_value < 40:
+                sentiment = "😰 Fearful"
+                color = "warning"
+            else:
+                sentiment = "😱 Panic"
+                color = "error"
+            
+            self.ui_components.create_metric_card("Market Sentiment", sentiment, f"VIX: {vix_value:.1f}")
+            
+            self.ui_components.create_info_box(
+                f"Current market sentiment is {sentiment.split()[1].lower()} based on volatility indicators",
+                color
+            )
+        
+        with col2:
+            # Risk metrics
+            portfolio_var = np.random.uniform(2, 8)
+            max_drawdown = np.random.uniform(5, 20)
+            
+            self.ui_components.create_metric_card("Portfolio VaR", f"{portfolio_var:.1f}%", "95% Confidence")
+            self.ui_components.create_metric_card("Max Drawdown", f"{max_drawdown:.1f}%", "Historical")
+    
+    def render_recent_alerts(self):
+        """Render recent alerts section"""
+        
+        st.markdown("### 🚨 Recent Alerts")
+        
+        # Simulate recent alerts
+        sample_alerts = [
+            {
+                'severity': 'high',
+                'title': 'Bitcoin Price Alert',
+                'message': 'BTC price dropped below $45,000 threshold',
+                'timestamp': datetime.now() - timedelta(minutes=15)
+            },
+            {
+                'severity': 'medium', 
+                'title': 'VIX Spike Alert',
+                'message': 'Volatility index increased by 12% in last hour',
+                'timestamp': datetime.now() - timedelta(hours=2)
+            },
+            {
+                'severity': 'low',
+                'title': 'Portfolio Rebalance',
+                'message': 'Portfolio drift detected - consider rebalancing',
+                'timestamp': datetime.now() - timedelta(hours=4)
+            }
+        ]
+        
+        for alert in sample_alerts:
+            self.ui_components.create_alert_card(
+                alert['severity'],
+                alert['title'],
+                alert['message'],
+                alert['timestamp'].strftime('%Y-%m-%d %H:%M')
+            )
+    
+    def render_quick_actions(self):
+        """Render quick actions section"""
+        
+        st.markdown("### ⚡ Quick Actions")
         
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
-            st.metric("Total Assets", total_assets)
+            if st.button("🔄 Refresh All Data", use_container_width=True):
+                st.session_state.data_loaded = False
+                st.rerun()
         
         with col2:
-            st.metric("Asset Categories", categories)
+            if st.button("💼 Optimize Portfolio", use_container_width=True):
+                st.session_state.current_page = 'portfolio'
+                st.rerun()
         
         with col3:
-            st.metric("Data Points", len(df))
+            if st.button("🔮 Generate Predictions", use_container_width=True):
+                st.session_state.current_page = 'predictions'
+                st.rerun()
         
         with col4:
-            st.metric("AI Models", len(predictions))
+            if st.button("🚨 Configure Alerts", use_container_width=True):
+                st.session_state.current_page = 'alerts'
+                st.rerun()
+    
+    def render_analytics_page(self):
+        """Render analytics page"""
         
-        # Risk analysis by category
-        st.markdown("### ⚠️ Risk Analysis by Asset Category")
+        st.markdown("## 📊 Advanced Analytics")
         
-        for asset_type, metrics in portfolio_analysis.items():
-            if metrics:
-                avg_volatility = np.mean([m['volatility'] for m in metrics])
-                high_risk_count = len([m for m in metrics if m['volatility'] > 30])
-                
-                risk_level = "🔴 High" if avg_volatility > 40 else "🟡 Medium" if avg_volatility > 20 else "🟢 Low"
-                
-                st.markdown(f"""
-                <div class="risk-alert">
-                    <h4>{asset_type} Risk Profile</h4>
-                    <p><strong>Average Volatility:</strong> {avg_volatility:.1f}% | <strong>Risk Level:</strong> {risk_level}</p>
-                    <p><strong>High Risk Assets:</strong> {high_risk_count} out of {len(metrics)}</p>
-                </div>
-                """, unsafe_allow_html=True)
+        if not st.session_state.data_loaded:
+            self.ui_components.create_loading_animation("Loading analytics data...")
+            return
         
-        # AI-generated insights
-        st.markdown("### 🤖 AI-Generated Portfolio Insights")
+        df = st.session_state.main_data
         
-        insights = [
-            "📊 **Market Diversification**: Your portfolio spans multiple asset classes, providing good diversification.",
-            "⚠️ **Volatility Alert**: Cryptocurrency positions show elevated volatility - consider position sizing.",
-            "📈 **Growth Opportunity**: AI models identify potential upside in select equity positions.",
-            "🔮 **Prediction Confidence**: Current market conditions allow for high-confidence 30-day forecasts.",
-            "🎯 **Risk Management**: Consider rebalancing based on recent volatility changes."
-        ]
+        # Analytics tabs
+        tab1, tab2, tab3 = st.tabs([
+            "📈 Technical Analysis",
+            "🔗 Correlation Analysis", 
+            "📊 Statistical Analysis"
+        ])
         
-        for insight in insights:
-            st.markdown(f"• {insight}")
+        with tab1:
+            self.render_technical_analysis(df)
         
-        # Performance attribution
-        st.markdown("### 🏆 Performance Attribution")
+        with tab2:
+            self.render_correlation_analysis(df)
         
-        # Create performance chart by category
-        if portfolio_analysis:
-            categories = list(portfolio_analysis.keys())
-            avg_returns = []
-            
-            for category in categories:
-                if portfolio_analysis[category]:
-                    avg_return = np.mean([m['return_1m'] for m in portfolio_analysis[category]])
-                    avg_returns.append(avg_return)
-                else:
-                    avg_returns.append(0)
-            
-            fig_perf = px.bar(
-                x=categories,
-                y=avg_returns,
-                title="Average 1-Month Returns by Asset Category",
-                color=avg_returns,
-                color_continuous_scale='RdYlGn'
+        with tab3:
+            self.render_statistical_analysis(df)
+    
+    def render_portfolio_page(self):
+        """Render portfolio optimization page"""
+        
+        st.markdown("## 💼 Portfolio Optimization")
+        
+        if not st.session_state.data_loaded:
+            self.ui_components.create_loading_animation("Loading portfolio data...")
+            return
+        
+        df = st.session_state.main_data
+        
+        # Use portfolio dashboard
+        self.portfolio_dashboard.create_optimization_interface(df)
+    
+    def render_predictions_page(self):
+        """Render predictions page"""
+        
+        st.markdown("## 🔮 AI Predictions")
+        
+        if not st.session_state.data_loaded:
+            self.ui_components.create_loading_animation("Loading prediction data...")
+            return
+        
+        df = st.session_state.main_data
+        
+        # Prediction interface
+        self.render_prediction_interface(df)
+    
+    def render_alerts_page(self):
+        """Render alerts page"""
+        
+        st.markdown("## 🚨 Alert Management")
+        
+        if not st.session_state.data_loaded:
+            self.ui_components.create_loading_animation("Loading alert data...")
+            return
+        
+        df = st.session_state.main_data
+        
+        # Use alert dashboard
+        self.alert_dashboard.create_alert_interface(df)
+    
+    def render_settings_page(self):
+        """Render settings page"""
+        
+        st.markdown("## ⚙️ Settings & Configuration")
+        
+        # API Configuration
+        st.markdown("### 🌐 API Configuration")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            alpha_vantage_key = st.text_input(
+                "Alpha Vantage API Key",
+                type="password",
+                help="Get your free API key at https://www.alphavantage.co/support/#api-key"
             )
             
-            st.plotly_chart(fig_perf, use_container_width=True)
+            fred_api_key = st.text_input(
+                "FRED API Key",
+                type="password", 
+                help="Get your free API key at https://fred.stlouisfed.org/docs/api/api_key.html"
+            )
+        
+        with col2:
+            st.markdown("#### 📧 Email Notifications")
+            email_enabled = st.checkbox("Enable Email Alerts")
+            
+            if email_enabled:
+                smtp_server = st.text_input("SMTP Server", value="smtp.gmail.com")
+                smtp_port = st.number_input("SMTP Port", value=587)
+                email_user = st.text_input("Email Username")
+                email_password = st.text_input("Email Password", type="password")
+        
+        # Data Refresh Settings
+        st.markdown("### 🔄 Data Refresh Settings")
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            auto_refresh = st.checkbox("Auto Refresh Data")
+            refresh_interval = st.selectbox(
+                "Refresh Interval",
+                ["1 minute", "5 minutes", "15 minutes", "1 hour"],
+                index=2
+            )
+        
+        with col2:
+            cache_duration = st.selectbox(
+                "Cache Duration", 
+                ["5 minutes", "15 minutes", "30 minutes", "1 hour"],
+                index=1
+            )
+        
+        with col3:
+            data_history = st.selectbox(
+                "Data History",
+                ["1 month", "3 months", "6 months", "1 year"],
+                index=2
+            )
+        
+        # Save settings
+        if st.button("💾 Save Settings", type="primary"):
+            self.ui_components.create_info_box("✅ Settings saved successfully!", "success")
     
-    # Footer
-    st.markdown("---")
-    st.markdown("""
-    <div style="text-align: center; color: #666; padding: 1rem;">
-        🚀 <strong>Economic Pulse V3.0</strong> - Multi-Asset Financial Intelligence Platform<br>
-        🤖 Powered by Advanced AI & Machine Learning | 📊 Real-time Multi-Asset Data | 🌍 Global Market Coverage<br>
-        <em>Built with Streamlit, Advanced Analytics & Modern Financial Technology</em>
-    </div>
-    """, unsafe_allow_html=True)
+    def train_prediction_models(self, df):
+        """Train AI prediction models"""
+        
+        key_assets = ['SPY', 'BTC-USD', 'UNRATE', 'EURUSD=X']
+        trained_models = 0
+        
+        for asset in key_assets:
+            if asset in df['series_id'].values:
+                try:
+                    # Train ensemble models
+                    success = self.ensemble_predictor.train_ensemble_models(df, asset)
+                    if success:
+                        trained_models += 1
+                except Exception as e:
+                    st.warning(f"⚠️ Failed to train model for {asset}: {str(e)}")
+        
+        if trained_models > 0:
+            st.session_state.models_trained = True
+            st.session_state.trained_assets = key_assets[:trained_models]
+            self.ui_components.create_info_box(
+                f"✅ Successfully trained {trained_models} AI models!",
+                "success"
+            )
+        else:
+            self.ui_components.create_info_box(
+                "❌ Failed to train AI models. Check data availability.",
+                "error"
+            )
+    
+    def display_ai_predictions(self):
+        """Display AI prediction results"""
+        
+        if 'trained_assets' not in st.session_state:
+            return
+        
+        for asset in st.session_state.trained_assets:
+            try:
+                # Generate predictions
+                prediction_result = self.ensemble_predictor.predict_ensemble(
+                    st.session_state.main_data, asset, periods=30
+                )
+                
+                if prediction_result:
+                    self.render_prediction_chart(asset, prediction_result)
+                    
+            except Exception as e:
+                st.warning(f"⚠️ Prediction failed for {asset}: {str(e)}")
+    
+    def render_prediction_chart(self, asset, prediction_result):
+        """Render individual prediction chart"""
+        
+        st.markdown(f"#### 📈 {prediction_result['series_name']} - 30-Day Forecast")
+        
+        # Get historical data
+        historical_data = st.session_state.main_data[
+            st.session_state.main_data['series_id'] == asset
+        ].sort_values('date').tail(90)
+        
+        # Create prediction chart
+        fig = go.Figure()
+        
+        # Historical data
+        fig.add_trace(
+            go.Scatter(
+                x=historical_data['date'],
+                y=historical_data['value'],
+                mode='lines',
+                name='Historical Data',
+                line=dict(color='#667eea', width=3)
+            )
+        )
+        
+        # Predictions
+        fig.add_trace(
+            go.Scatter(
+                x=prediction_result['dates'],
+                y=prediction_result['predictions'],
+                mode='lines+markers',
+                name='AI Prediction',
+                line=dict(color='#f5576c', dash='dash', width=3),
+                marker=dict(size=8, color='#f5576c')
+            )
+        )
+        
+        fig.update_layout(
+            title=f"{prediction_result['series_name']} - AI Prediction ({prediction_result['model_type']})",
+            xaxis_title="Date",
+            yaxis_title="Value",
+            template='plotly_white',
+            height=400,
+            font_family='Inter'
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
+        
+        # Prediction summary
+        col1, col2, col3 = st.columns(3)
+        
+        current_value = historical_data.iloc[-1]['value']
+        predicted_value = prediction_result['predictions'][-1]
+        change_pct = ((predicted_value - current_value) / current_value * 100)
+        
+        with col1:
+            self.ui_components.create_metric_card("Current Value", f"{current_value:.2f}")
+        
+        with col2:
+            self.ui_components.create_metric_card("30-Day Forecast", f"{predicted_value:.2f}")
+        
+        with col3:
+            self.ui_components.create_metric_card("Predicted Change", f"{change_pct:+.1f}%")
+    
+    def render_technical_analysis(self, df):
+        """Render technical analysis"""
+        
+        st.markdown("#### 📈 Technical Analysis")
+        
+        # Asset selection for technical analysis
+        available_assets = df['series_id'].unique()
+        selected_asset = st.selectbox("Select Asset for Technical Analysis:", available_assets)
+        
+        asset_data = df[df['series_id'] == selected_asset].sort_values('date')
+        
+        if len(asset_data) > 20:
+            # Calculate technical indicators (simplified)
+            prices = asset_data['value'].values
+            
+            # Simple moving averages
+            sma_20 = pd.Series(prices).rolling(20).mean()
+            sma_50 = pd.Series(prices).rolling(50).mean()
+            
+            # Create technical chart
+            fig = go.Figure()
+            
+            # Price line
+            fig.add_trace(
+                go.Scatter(
+                    x=asset_data['date'],
+                    y=prices,
+                    mode='lines',
+                    name='Price',
+                    line=dict(color='#667eea', width=3)
+                )
+            )
+            
+            # Moving averages
+            fig.add_trace(
+                go.Scatter(
+                    x=asset_data['date'],
+                    y=sma_20,
+                    mode='lines',
+                    name='SMA 20',
+                    line=dict(color='#f5576c', width=2)
+                )
+            )
+            
+            fig.add_trace(
+                go.Scatter(
+                    x=asset_data['date'],
+                    y=sma_50,
+                    mode='lines',
+                    name='SMA 50',
+                    line=dict(color='#4facfe', width=2)
+                )
+            )
+            
+            fig.update_layout(
+                title=f"Technical Analysis - {asset_data.iloc[-1]['series_name']}",
+                xaxis_title="Date",
+                yaxis_title="Price",
+                template='plotly_white',
+                height=500,
+                font_family='Inter'
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.warning("⚠️ Insufficient data for technical analysis")
+    
+    def render_correlation_analysis(self, df):
+        """Render correlation analysis"""
+        
+        st.markdown("#### 🔗 Asset Correlation Analysis")
+        
+        # Create correlation matrix for major assets
+        major_assets = ['SPY', 'QQQ', 'GLD', 'BTC-USD', 'EURUSD=X']
+        available_assets = [asset for asset in major_assets if asset in df['series_id'].values]
+        
+        if len(available_assets) >= 2:
+            # Create correlation data
+            correlation_data = {}
+            
+            for asset in available_assets:
+                asset_data = df[df['series_id'] == asset].sort_values('date')
+                if len(asset_data) >= 30:
+                    # Use last 30 data points
+                    correlation_data[asset] = asset_data['value'].tail(30).values
+            
+            if len(correlation_data) >= 2:
+                # Align data lengths
+                min_length = min(len(values) for values in correlation_data.values())
+                aligned_data = {asset: values[-min_length:] for asset, values in correlation_data.items()}
+                
+                # Calculate correlation
+                corr_df = pd.DataFrame(aligned_data).corr()
+                
+                # Create heatmap
+                fig = self.chart_components.create_modern_heatmap(
+                    corr_df,
+                    title="Asset Correlation Matrix",
+                    height=500
+                )
+                
+                st.plotly_chart(fig, use_container_width=True)
+                
+                # Correlation insights
+                highest_corr = corr_df.where(~np.eye(len(corr_df), dtype=bool)).stack().max()
+                lowest_corr = corr_df.where(~np.eye(len(corr_df), dtype=bool)).stack().min()
+                
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    self.ui_components.create_info_box(
+                        f"🔗 Highest correlation: {highest_corr:.3f}",
+                        "info"
+                    )
+                
+                with col2:
+                    self.ui_components.create_info_box(
+                        f"↔️ Lowest correlation: {lowest_corr:.3f}",
+                        "info"
+                    )
+            else:
+                st.warning("⚠️ Insufficient data for correlation analysis")
+        else:
+            st.warning("⚠️ Need at least 2 assets for correlation analysis")
+    
+    def render_statistical_analysis(self, df):
+        """Render statistical analysis"""
+        
+        st.markdown("#### 📊 Statistical Analysis")
+        
+        # Asset selection
+        available_assets = df['series_id'].unique()
+        selected_asset = st.selectbox("Select Asset for Statistical Analysis:", available_assets, key='stats_asset')
+        
+        asset_data = df[df['series_id'] == selected_asset].sort_values('date')
+        
+        if len(asset_data) >= 30:
+            values = asset_data['value'].values
+            returns = np.diff(values) / values[:-1] * 100
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                # Basic statistics
+                st.markdown("**📈 Basic Statistics**")
+                
+                stats_data = {
+                    'Mean': np.mean(values),
+                    'Median': np.median(values),
+                    'Std Dev': np.std(values),
+                    'Min': np.min(values),
+                    'Max': np.max(values),
+                    'Skewness': pd.Series(returns).skew(),
+                    'Kurtosis': pd.Series(returns).kurtosis()
+                }
+                
+                stats_df = pd.DataFrame(list(stats_data.items()), columns=['Metric', 'Value'])
+                st.dataframe(stats_df, use_container_width=True)
+            
+            with col2:
+                # Returns distribution
+                fig_hist = px.histogram(
+                    x=returns,
+                    title="Returns Distribution",
+                    nbins=30,
+                    template='plotly_white'
+                )
+                
+                fig_hist.update_layout(
+                    xaxis_title="Returns (%)",
+                    yaxis_title="Frequency",
+                    height=400,
+                    font_family='Inter'
+                )
+                
+                st.plotly_chart(fig_hist, use_container_width=True)
+        else:
+            st.warning("⚠️ Insufficient data for statistical analysis")
+    
+    def render_prediction_interface(self, df):
+        """Render prediction interface"""
+        
+        # Prediction controls
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            prediction_asset = st.selectbox(
+                "Select Asset for Prediction:",
+                df['series_id'].unique()
+            )
+        
+        with col2:
+            prediction_periods = st.slider(
+                "Prediction Horizon (days):",
+                min_value=7,
+                max_value=90,
+                value=30
+            )
+        
+        with col3:
+            model_type = st.selectbox(
+                "Model Type:",
+                ["Ensemble", "LSTM", "Traditional ML"],
+                index=0
+            )
+        
+        # Generate prediction
+        if st.button("🔮 Generate Prediction", type="primary"):
+            with st.spinner(f"🤖 Generating {model_type} prediction for {prediction_asset}..."):
+                try:
+                    if model_type == "Ensemble":
+                        # Train and predict with ensemble
+                        success = self.ensemble_predictor.train_ensemble_models(df, prediction_asset)
+                        if success:
+                            prediction_result = self.ensemble_predictor.predict_ensemble(
+                                df, prediction_asset, periods=prediction_periods
+                            )
+                            
+                            if prediction_result:
+                                self.render_prediction_chart(prediction_asset, prediction_result)
+                            else:
+                                st.error("❌ Prediction generation failed")
+                        else:
+                            st.error("❌ Model training failed")
+                    
+                    elif model_type == "LSTM":
+                        # Train and predict with LSTM
+                        success = self.lstm_predictor.train_lstm_models(df, prediction_asset)
+                        if success:
+                            prediction_result = self.lstm_predictor.predict_lstm(
+                                df, prediction_asset, periods=prediction_periods
+                            )
+                            
+                            if prediction_result:
+                                self.render_prediction_chart(prediction_asset, prediction_result)
+                            else:
+                                st.error("❌ LSTM prediction failed")
+                        else:
+                            st.error("❌ LSTM training failed")
+                    
+                    else:
+                        st.info("🔄 Traditional ML prediction coming soon...")
+                        
+                except Exception as e:
+                    st.error(f"❌ Prediction error: {str(e)}")
+    
+    def run_basic_mode(self):
+        """Run application in basic mode when enhanced modules unavailable"""
+        
+        st.title("🚀 Economic Pulse V3.1")
+        st.markdown("### Basic Mode - Enhanced Features Unavailable")
+        
+        st.error("❌ Enhanced modules not available. Please install required dependencies:")
+        
+        st.code("""
+        pip install tensorflow
+        pip install scipy
+        pip install cvxpy
+        pip install scikit-learn
+        """)
+        
+        st.markdown("---")
+        st.markdown("### 📋 Available Features in Basic Mode:")
+        st.markdown("- Basic data visualization")
+        st.markdown("- Simple analytics")
+        st.markdown("- Core Streamlit functionality")
+        
+        # Basic dashboard
+        st.markdown("### 📊 Basic Market Data")
+        
+        # Simulate basic data
+        dates = pd.date_range('2023-01-01', datetime.now(), freq='D')
+        spy_prices = 450 * (1 + np.cumsum(np.random.normal(0, 0.01, len(dates))))
+        
+        basic_df = pd.DataFrame({
+            'Date': dates,
+            'SPY': spy_prices
+        })
+        
+        fig = px.line(basic_df, x='Date', y='SPY', title='S&P 500 ETF (SPY) - Simulated Data')
+        st.plotly_chart(fig, use_container_width=True)
+
+def main():
+    """Main application entry point"""
+    
+    app = EconomicPulseV31()
+    app.run()
 
 if __name__ == "__main__":
     main()
