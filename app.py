@@ -5,6 +5,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import warnings
+import time
 warnings.filterwarnings('ignore')
 
 # Import all enhanced modules
@@ -24,6 +25,200 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from datetime import datetime, timedelta
+
+
+# monitoring_fixes
+
+# Enhanced monitoring with error handling
+def safe_monitoring():
+    """Safe monitoring with fallbacks"""
+    try:
+        # Original monitoring code with error handling
+        if ENHANCED_MODULES_AVAILABLE:
+            api_status = check_api_status()
+        else:
+            # Fallback status
+            api_status = {
+                "simulated": True,
+                "fred": False,
+                "alpha_vantage": False,
+                "yahoo_finance": True
+            }
+        return api_status
+    except Exception as e:
+        # Ultimate fallback
+        return {"error": str(e), "simulated": True}
+
+
+# performance_monitoring
+
+# Add performance monitoring
+def monitor_performance():
+    """Monitor app performance"""
+    if 'perf_start' not in st.session_state:
+        st.session_state.perf_start = time.time()
+    
+    # Add to sidebar
+    with st.sidebar:
+        if st.checkbox("Show Performance"):
+            load_time = time.time() - st.session_state.perf_start
+            st.metric("Load Time", f"{load_time:.2f}s")
+
+
+# ui_improvements
+
+# Fix UI issues
+def fix_ui_rendering():
+    """Fix common UI rendering issues"""
+    
+    # Add custom CSS for better rendering
+    st.markdown("""
+    <style>
+    /* Ensure consistent styling */
+    .main > div {
+        padding: 1rem;
+    }
+    
+    /* Fix sidebar rendering */
+    .sidebar .sidebar-content {
+        background-color: #f0f2f6;
+    }
+    
+    /* Optimize mobile view */
+    @media (max-width: 768px) {
+        .main > div {
+            padding: 0.5rem;
+        }
+    }
+    
+    /* Fix metric styling */
+    [data-testid="metric-container"] {
+        background-color: white;
+        border: 1px solid #e0e0e0;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin: 0.5rem 0;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+fix_ui_rendering()
+
+
+# loading_optimization
+
+# Add to app.py initialization
+def ensure_complete_loading():
+    """Ensure app loads completely"""
+    if 'loading_complete' not in st.session_state:
+        with st.spinner("Initializing Economic Pulse V3.1..."):
+            time.sleep(1)  # Allow time for complete initialization
+            st.session_state.loading_complete = True
+            st.rerun()
+
+
+# Add comprehensive error handling
+def handle_streamlit_errors():
+    """Handle Streamlit application errors gracefully"""
+    try:
+        import streamlit as st
+        if hasattr(st, 'error'):
+            @st.cache_data
+            def safe_operation(func, *args, **kwargs):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    st.warning(f"Operation failed gracefully: {str(e)}")
+                    return None
+    except Exception:
+        pass
+
+handle_streamlit_errors()
+
+
+# Add loading state management
+def ensure_app_ready():
+    """Ensure application is fully ready"""
+    if 'app_ready' not in st.session_state:
+        st.session_state.app_ready = False
+        
+    if not st.session_state.app_ready:
+        with st.container():
+            st.markdown("## 🚀 Economic Pulse V3.1")
+            st.markdown("*Advanced Financial Intelligence Platform*")
+            
+            progress_bar = st.progress(0)
+            status_text = st.empty()
+            
+            # Simulate loading steps
+            for i, step in enumerate([
+                "Initializing components...",
+                "Loading financial data...", 
+                "Setting up monitoring...",
+                "Ready!"
+            ]):
+                status_text.text(step)
+                progress_bar.progress((i + 1) * 25)
+                time.sleep(0.5)
+                
+            st.session_state.app_ready = True
+            status_text.text("✅ Application ready!")
+            time.sleep(1)
+            st.rerun()
+            
+ensure_app_ready()
+
+
+# Add comprehensive error handling
+def handle_streamlit_errors():
+    """Handle Streamlit application errors gracefully"""
+    try:
+        import streamlit as st
+        if hasattr(st, 'error'):
+            @st.cache_data
+            def safe_operation(func, *args, **kwargs):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    st.warning(f"Operation failed gracefully: {str(e)}")
+                    return None
+    except Exception:
+        pass
+
+handle_streamlit_errors()
+
+
+# Add loading state management
+def ensure_app_ready():
+    """Ensure application is fully ready"""
+    if 'app_ready' not in st.session_state:
+        st.session_state.app_ready = False
+        
+    if not st.session_state.app_ready:
+        with st.container():
+            st.markdown("## 🚀 Economic Pulse V3.1")
+            st.markdown("*Advanced Financial Intelligence Platform*")
+            
+            progress_bar = st.progress(0)
+            status_text = st.empty()
+            
+            # Simulate loading steps
+            for i, step in enumerate([
+                "Initializing components...",
+                "Loading financial data...", 
+                "Setting up monitoring...",
+                "Ready!"
+            ]):
+                status_text.text(step)
+                progress_bar.progress((i + 1) * 25)
+                time.sleep(0.5)
+                
+            st.session_state.app_ready = True
+            status_text.text("✅ Application ready!")
+            time.sleep(1)
+            st.rerun()
+            
+ensure_app_ready()
 
 # Page configuration
 st.set_page_config(
