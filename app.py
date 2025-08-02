@@ -75,6 +75,19 @@ class EconomicPulseV31:
             st.session_state.models_trained = False
             st.session_state.portfolio_optimized = False
             st.session_state.alerts_configured = False
+            
+            # Initialize monitoring variables
+            st.session_state.app_start_time = datetime.now()
+            st.session_state.page_loads = 0
+            
+            # Platform detection
+            import platform
+            import socket
+            st.session_state.platform = platform.system()
+            try:
+                st.session_state.hostname = socket.gethostname()
+            except:
+                st.session_state.hostname = "unknown"
     
     def run(self):
         """Main application entry point"""
@@ -133,6 +146,9 @@ class EconomicPulseV31:
                             for api, status in api_status.items():
                                 status_text = "🟢 Online" if status else "🔴 Offline"
                                 st.markdown(f"**{api.title()}:** {status_text}")
+                            
+                            # Add comprehensive monitoring dashboard
+                            self.render_monitoring_dashboard(api_status)
                         
                         self.ui_components.create_info_box(
                             f"✅ Loaded {len(df)} data points from {len(df['series_id'].unique())} assets",
@@ -988,6 +1004,66 @@ class EconomicPulseV31:
                         
                 except Exception as e:
                     st.error(f"❌ Prediction error: {str(e)}")
+    
+    def render_monitoring_dashboard(self, api_status):
+        """Render comprehensive monitoring dashboard in sidebar"""
+        
+        st.markdown("---")
+        st.markdown("### 🔍 System Monitor")
+        
+        # App Health Status
+        all_apis_ok = all(api_status.values()) if api_status else False
+        health_status = "🟢 Healthy" if all_apis_ok else "🟡 Degraded" if any(api_status.values()) else "🔴 Offline"
+        st.metric("App Health", health_status)
+        
+        # Data Freshness
+        if hasattr(st.session_state, 'last_data_update') and st.session_state.last_data_update:
+            time_diff = datetime.now() - st.session_state.last_data_update
+            minutes_ago = int(time_diff.total_seconds() / 60)
+            freshness_status = "🟢 Fresh" if minutes_ago < 5 else "🟡 Stale" if minutes_ago < 15 else "🔴 Old"
+            st.metric("Data Age", f"{minutes_ago}m ago", delta=freshness_status)
+        else:
+            st.metric("Data Age", "Unknown", delta="🔴 No data")
+        
+        # Session Metrics
+        if hasattr(st.session_state, 'page_loads'):
+            st.session_state.page_loads += 1
+        else:
+            st.session_state.page_loads = 1
+        
+        st.metric("Page Loads", st.session_state.page_loads)
+        
+        # Performance Metrics
+        if hasattr(st.session_state, 'main_data') and not st.session_state.main_data.empty:
+            data_points = len(st.session_state.main_data)
+            assets_count = len(st.session_state.main_data['series_id'].unique()) if 'series_id' in st.session_state.main_data.columns else 0
+            st.metric("Data Points", f"{data_points:,}")
+            st.metric("Assets Tracked", assets_count)
+        
+        # Memory Usage (approximate)
+        import sys
+        memory_mb = sys.getsizeof(st.session_state) / 1024 / 1024
+        st.metric("Memory Usage", f"{memory_mb:.1f} MB")
+        
+        # Quick Status Summary
+        st.markdown("---")
+        st.markdown("### 📊 Quick Status")
+        
+        status_items = [
+            f"🌐 APIs: {sum(api_status.values())}/{len(api_status)} online" if api_status else "🌐 APIs: Unknown",
+            f"💾 Data: {'✅ Loaded' if st.session_state.get('data_loaded', False) else '❌ Not loaded'}",
+            f"⚡ Enhanced: {'✅ Active' if ENHANCED_MODULES_AVAILABLE else '❌ Basic mode'}",
+            f"🕒 Updated: {datetime.now().strftime('%H:%M:%S')}"
+        ]
+        
+        for item in status_items:
+            st.markdown(f"- {item}")
+        
+        # Version Info
+        st.markdown("---")
+        st.markdown("**Version:** Economic Pulse V3.1")
+        st.markdown(f"**Platform:** {st.session_state.get('platform', 'Unknown')}")
+        st.markdown(f"**Environment:** {'Production' if 'streamlit.app' in st.session_state.get('hostname', '') else 'Development'}")
     
     def run_basic_mode(self):
         """Run application in basic mode when enhanced modules unavailable"""
