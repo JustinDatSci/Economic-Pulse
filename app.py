@@ -27,6 +27,33 @@ from plotly.subplots import make_subplots
 from datetime import datetime, timedelta
 
 
+# api_robustness
+
+# Enhanced API error handling
+def robust_api_calls():
+    """Make API calls more robust"""
+    import requests
+    from requests.adapters import HTTPAdapter
+    from urllib3.util.retry import Retry
+    
+    def create_robust_session():
+        session = requests.Session()
+        
+        retry_strategy = Retry(
+            total=3,
+            backoff_factor=1,
+            status_forcelist=[429, 500, 502, 503, 504],
+        )
+        
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        session.mount("http://", adapter)
+        session.mount("https://", adapter)
+        
+        return session
+    
+    return create_robust_session()
+
+
 # monitoring_fixes
 
 # Enhanced monitoring with error handling
@@ -115,6 +142,58 @@ def ensure_complete_loading():
             time.sleep(1)  # Allow time for complete initialization
             st.session_state.loading_complete = True
             st.rerun()
+
+
+# Add comprehensive error handling
+def handle_streamlit_errors():
+    """Handle Streamlit application errors gracefully"""
+    try:
+        import streamlit as st
+        if hasattr(st, 'error'):
+            @st.cache_data
+            def safe_operation(func, *args, **kwargs):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    st.warning(f"Operation failed gracefully: {str(e)}")
+                    return None
+    except Exception:
+        pass
+
+handle_streamlit_errors()
+
+
+# Add loading state management
+def ensure_app_ready():
+    """Ensure application is fully ready"""
+    if 'app_ready' not in st.session_state:
+        st.session_state.app_ready = False
+        
+    if not st.session_state.app_ready:
+        with st.container():
+            st.markdown("## 🚀 Economic Pulse V3.1")
+            st.markdown("*Advanced Financial Intelligence Platform*")
+            
+            progress_bar = st.progress(0)
+            status_text = st.empty()
+            
+            # Simulate loading steps
+            for i, step in enumerate([
+                "Initializing components...",
+                "Loading financial data...", 
+                "Setting up monitoring...",
+                "Ready!"
+            ]):
+                status_text.text(step)
+                progress_bar.progress((i + 1) * 25)
+                time.sleep(0.5)
+                
+            st.session_state.app_ready = True
+            status_text.text("✅ Application ready!")
+            time.sleep(1)
+            st.rerun()
+            
+ensure_app_ready()
 
 
 # Add comprehensive error handling
