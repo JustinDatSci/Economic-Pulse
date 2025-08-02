@@ -89,8 +89,131 @@ class EconomicPulseV31:
             except:
                 st.session_state.hostname = "unknown"
     
+    def handle_api_endpoints(self):
+        """Handle API monitoring endpoints"""
+        
+        # Check for monitoring API requests via query params
+        query_params = st.query_params
+        
+        if 'api' in query_params:
+            api_type = query_params['api']
+            
+            if api_type == 'health':
+                # Return JSON health data
+                health_data = self.get_health_data()
+                st.json(health_data)
+                st.stop()
+                
+            elif api_type == 'metrics':
+                # Return performance metrics
+                metrics_data = self.get_metrics_data()
+                st.json(metrics_data)
+                st.stop()
+                
+            elif api_type == 'status':
+                # Return API status
+                status_data = self.get_api_status_data()
+                st.json(status_data)
+                st.stop()
+
+    def get_health_data(self):
+        """Get comprehensive health data as JSON"""
+        
+        # Check API status
+        if ENHANCED_MODULES_AVAILABLE:
+            try:
+                api_status = check_api_status()
+            except:
+                api_status = {}
+        else:
+            api_status = {"enhanced_modules": False}
+        
+        # Calculate scores
+        api_score = (sum(api_status.values()) / len(api_status)) * 100 if api_status else 0
+        
+        # Get uptime
+        uptime_seconds = 0
+        if hasattr(st.session_state, 'app_start_time'):
+            uptime_seconds = (datetime.now() - st.session_state.app_start_time).total_seconds()
+        
+        # Data freshness
+        data_age_minutes = 999
+        if hasattr(st.session_state, 'last_data_update') and st.session_state.last_data_update:
+            data_age_minutes = (datetime.now() - st.session_state.last_data_update).total_seconds() / 60
+        
+        return {
+            "timestamp": datetime.now().isoformat(),
+            "version": "3.1",
+            "status": "healthy" if api_score >= 80 else "degraded" if api_score >= 50 else "critical",
+            "health_score": round(api_score, 1),
+            "uptime_hours": round(uptime_seconds / 3600, 2),
+            "data_age_minutes": round(data_age_minutes, 1),
+            "apis": api_status,
+            "enhanced_modules": ENHANCED_MODULES_AVAILABLE,
+            "session_loaded": st.session_state.get('data_loaded', False),
+            "page_loads": st.session_state.get('page_loads', 0)
+        }
+    
+    def get_metrics_data(self):
+        """Get performance metrics as JSON"""
+        
+        import sys
+        memory_mb = sys.getsizeof(st.session_state) / 1024 / 1024
+        
+        return {
+            "timestamp": datetime.now().isoformat(),
+            "performance": {
+                "memory_usage_mb": round(memory_mb, 2),
+                "session_size": len(str(st.session_state)),
+                "page_loads": st.session_state.get('page_loads', 0),
+                "data_points": len(st.session_state.get('main_data', [])),
+                "platform": st.session_state.get('platform', 'unknown')
+            },
+            "environment": {
+                "enhanced_modules": ENHANCED_MODULES_AVAILABLE,
+                "streamlit_version": st.__version__,
+                "hostname": st.session_state.get('hostname', 'unknown')
+            }
+        }
+    
+    def get_api_status_data(self):
+        """Get detailed API status as JSON"""
+        
+        if ENHANCED_MODULES_AVAILABLE:
+            try:
+                api_status = check_api_status()
+                detailed_status = {}
+                
+                for api, status in api_status.items():
+                    detailed_status[api] = {
+                        "online": status,
+                        "last_check": datetime.now().isoformat(),
+                        "response_time": None  # Could add timing later
+                    }
+                    
+                return {
+                    "timestamp": datetime.now().isoformat(),
+                    "apis": detailed_status,
+                    "summary": {
+                        "total_apis": len(api_status),
+                        "online_count": sum(api_status.values()),
+                        "offline_count": len(api_status) - sum(api_status.values()),
+                        "health_percentage": (sum(api_status.values()) / len(api_status)) * 100
+                    }
+                }
+            except Exception as e:
+                return {"error": str(e), "timestamp": datetime.now().isoformat()}
+        else:
+            return {
+                "timestamp": datetime.now().isoformat(),
+                "error": "Enhanced modules not available"
+            }
+
     def run(self):
         """Main application entry point"""
+        
+        # Handle API endpoints first
+        self.handle_api_endpoints()
         
         if not ENHANCED_MODULES_AVAILABLE:
             self.run_basic_mode()
@@ -1011,10 +1134,33 @@ class EconomicPulseV31:
         st.markdown("---")
         st.markdown("### 🔍 System Monitor")
         
-        # App Health Status
+        # App Health Status with detailed scoring
         all_apis_ok = all(api_status.values()) if api_status else False
-        health_status = "🟢 Healthy" if all_apis_ok else "🟡 Degraded" if any(api_status.values()) else "🔴 Offline"
+        api_score = (sum(api_status.values()) / len(api_status)) * 100 if api_status else 0
+        
+        if api_score >= 80:
+            health_status = f"🟢 Healthy ({api_score:.0f}%)"
+        elif api_score >= 50:
+            health_status = f"🟡 Degraded ({api_score:.0f}%)"
+        else:
+            health_status = f"🔴 Critical ({api_score:.0f}%)"
+            
         st.metric("App Health", health_status)
+        
+        # Performance Metrics
+        if hasattr(st.session_state, 'app_start_time'):
+            uptime = datetime.now() - st.session_state.app_start_time
+            uptime_hours = uptime.total_seconds() / 3600
+            st.metric("Uptime", f"{uptime_hours:.1f}h")
+        
+        # Real-time API Status Details
+        with st.expander("🔍 API Details"):
+            for api, status in api_status.items():
+                status_icon = "🟢" if status else "🔴"
+                st.write(f"{status_icon} **{api.title()}**: {'Online' if status else 'Offline'}")
+            
+            # Add last API check timestamp
+            st.write(f"🕒 Last Check: {datetime.now().strftime('%H:%M:%S')}")
         
         # Data Freshness
         if hasattr(st.session_state, 'last_data_update') and st.session_state.last_data_update:
